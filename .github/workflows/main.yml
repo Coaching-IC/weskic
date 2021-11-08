@@ -27,6 +27,6 @@ jobs:
           prerelease: false
           title: "Production Build"
           files: |
-            weskic-frontend/dist/*
+            weskic-frontend/dist
         
      
