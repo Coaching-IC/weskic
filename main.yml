@@ -1,0 +1,32 @@
+name: Frontend Automatic release
+on:
+  push:
+    branches:
+      - "main"
+    tags:
+      - "release"
+jobs:
+  build-release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Node setup
+        uses: actions/setup-node@v2
+        with:
+          node-version: '14'
+      - name: NPM Install & Build
+        run: |
+          cd weskic-frontend
+          npm install
+          npm run build
+      - name: Release creation
+      - uses: "marvinpinto/action-automatic-releases@latest"
+        with:
+          repo_token: "${{ secrets.GITHUB_TOKEN }}"
+          automatic_release_tag: "latest"
+          prerelease: false
+          title: "Production Build"
+          files: |
+            weskic-frontend/dist/*
+        
+     
