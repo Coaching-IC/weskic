@@ -5,12 +5,15 @@ dotenv.config();
 import jwt from 'jsonwebtoken';
 import express from 'express';
 import tequila from './tequila.mjs';
+import {fileURLToPath} from 'url';
+import {dirname} from 'path';
 
 const PORT = process.env.PORT;
 const JWT_TOKEN = process.env.JWT_TOKEN;
 const TEQUILA_RETURN_URL = process.env.TEQUILA_RETURN_URL;
 const UNITS_RULES = process.env.UNITS_RULES.split(' ');
 const ADMINS = (process.env.ADMINS && process.env.ADMINS.split(',')) || [];
+const DIRNAME = dirname(fileURLToPath(import.meta.url));
 console.log('UNITS_RULES', UNITS_RULES);
 console.log('ADMINS', ADMINS);
 
@@ -75,8 +78,7 @@ const checkUnit = function (req, res, next) {
                             errDate = false;
                             errList = false;
                             return next();
-                        }
-                        else {
+                        } else {
                             errDate = true;
                             firstDate = firstDate || date;
                         }
@@ -151,6 +153,11 @@ app.post('/api/tequila/login', (req, res) => {
 // app.get('/api/test', (req, res) => {
 //     checkUnit({userData: {units: ['agepinfo', 'admin']}}, res, () => res.sendStatus(200));
 // });
+
+app.use(express.static('static'));
+app.get('*', (req, res) => {
+    res.sendFile(DIRNAME + '/static/index.html');
+});
 
 app.listen(PORT, () => {
     console.log(`Server listening on port ${PORT}`);
