@@ -11,15 +11,14 @@
 
     <InfoQuestion class="question" question="Comment ça se passe pour le matériel de ski ?">
       <p>Deux possiblités : si tu as ton propre matériel
-        tu pourras nous le confier pour le transport. Sinon en
-        février on aura un partenariat avec Décathlon qui où tu pourras
+        tu pourras nous le confier pour le transport. Sinon en février tu pourras
         louer du matériel et on gère la logistique. Plus d'infos plus
         tard. Bien entendu tu peux aussi louer ton matériel autre part
         mais en général c'est moins avantageux.</p>
     </InfoQuestion>
 
     <InfoQuestion class="question" question="Est-ce que je dois savoir skier pour venir ?">
-      <p>Même pas ! Notre incroyable Moneycoach Maxime est également monitrice de ski. Elle organisera des cours gratuits pour débutants. Raison de plus de venir ;)</p>
+      <p>Même pas ! Notre incroyable Picsoucoach Maxime est également monitrice de ski. Elle organisera des cours gratuits pour débutants. Raison de plus de venir ;)</p>
     </InfoQuestion>
 
     <h2 class="title questionsSectionTitle">Administratif</h2>
