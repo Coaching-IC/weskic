@@ -19,7 +19,6 @@ export default {
 
 html, body {
   height: 100%;
-  overflow: hidden;
 }
 
 #toplevel {
@@ -29,10 +28,14 @@ html, body {
 }
 
 #bg {
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 100%;
+  width: 100%;
   background-image: url("./assets/portes_du_soleil_bg.jpg");
   background-repeat: no-repeat;
   background-size: cover;
-  height: 100%;
   filter: blur(8px);
   -webkit-filter: blur(8px);
   transform: scale(1.1);
@@ -41,7 +44,7 @@ html, body {
 #app {
   position: absolute;
   width: 100%;
-  height: 100%;
+  min-height: 100%;
   top: 0;
   left: 0;
 

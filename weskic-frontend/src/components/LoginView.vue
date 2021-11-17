@@ -10,7 +10,7 @@
         fois-ci on revient en force avec un jour de plus et un nouvel endroit !</p>
       <br>
       <div class="is-flex actionbar">
-        <b-button type="is-outlined" expanded tag="router-link" :to="{name: 'what'}">Informations</b-button>
+        <b-button type="is-outlined" expanded tag="router-link" :to="{name: 'info'}">Informations</b-button>
         <b-button type="is-info" expanded tag="a" @click="loginWithTequila">Connexion</b-button>
       </div>
     </div>

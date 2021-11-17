@@ -8,7 +8,7 @@ import {ToastProgrammatic as Toast} from 'buefy'
 
 import App from './App.vue';
 import LoginView from "@/components/LoginView";
-import WhatView from "@/components/WhatView";
+import InfoView from "@/components/InfoView";
 import NotFoundView from "@/components/NotFoundView";
 import RegistrationView from "@/components/RegistrationView";
 
@@ -125,8 +125,8 @@ function tequilaResponseHandler(to, from, next) {
 }
 
 const routes = [
-    {path: '/', redirect: {name: 'what'}},
-    {path: '/what-is-weskic', component: WhatView, name: 'what'},
+    {path: '/', redirect: {name: 'info'}},
+    {path: '/info', component: InfoView, name: 'info'},
     {
         path: '/login', component: LoginView, name: 'login', beforeEnter: (from, to, next) => {
             if (store.state.jwt !== '') next({name: 'registration'}); else next();
