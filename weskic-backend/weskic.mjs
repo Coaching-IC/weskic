@@ -1,15 +1,16 @@
 import dotenv from 'dotenv';
-
 dotenv.config();
 
 import jwt from 'jsonwebtoken';
 import express from 'express';
 import tequila from './tequila.mjs';
+import updater from './staticUpdater.mjs';
 import {fileURLToPath} from 'url';
 import {dirname} from 'path';
+import * as fs from "fs";
 
 const PORT = process.env.PORT;
-const JWT_TOKEN = process.env.JWT_TOKEN;
+const JWT_KEY = process.env.JWT_KEY;
 const TEQUILA_RETURN_URL = process.env.TEQUILA_RETURN_URL;
 const UNITS_RULES = process.env.UNITS_RULES.split(' ');
 const ADMINS = (process.env.ADMINS && process.env.ADMINS.split(',')) || [];
@@ -29,11 +30,13 @@ app.use(express.json());
 let authorizeEveryone = false;
 let authorizedUnits = []; // holds a cache of all units previously authorized by checkUnit
 
+/* ---------------- AUTHORIZATION & TEQUILA ------------------- */
+
 const checkAuthentication = function (req, res, next) {
     const bearerToken = req.headers['authorization'];
     if (typeof bearerToken !== 'undefined') {
         const tokenString = bearerToken.split(' ')[1];
-        jwt.verify(tokenString, JWT_TOKEN, (err, userData) => {
+        jwt.verify(tokenString, JWT_KEY, (err, userData) => {
             if (err) {
                 console.error(`JWT Verification failed : ${err}, IP: ${req.ip}`);
                 return res.sendStatus(403);
@@ -110,7 +113,7 @@ const createJWT = function (tequilaObject) {
         sciper: tequilaObject.uniqueid,
         displayName: tequilaObject.displayname,
         units: tequilaObject.allunits.split(','),
-    }, JWT_TOKEN);
+    }, JWT_KEY);
 }
 
 app.get('/api/tequila/request', (req, res) => {
@@ -152,9 +155,7 @@ app.post('/api/tequila/login', (req, res) => {
     });
 });
 
-// app.get('/api/test', (req, res) => {
-//     checkUnit({userData: {units: ['agepinfo', 'admin']}}, res, () => res.sendStatus(200));
-// });
+/* ------------ MANAGEMENT ---------- */
 
 const checkManagementKey = function (req, res, next) {
     if (req.params['mgtKey'] && req.params['mgtKey'] === MANAGEMENT_KEY) {
@@ -164,15 +165,38 @@ const checkManagementKey = function (req, res, next) {
     }
 }
 
-app.get('/api/mgt/:mgtKey/update', checkManagementKey, (req, res) => {
-
+app.get('/api/mgt/:mgtKey/check', checkManagementKey, (req, res) => {
+    updater.checkLatest('data').then(p => {
+        res.send(p);
+    }).catch(err => {
+        res.send({error: err});
+    });
 });
 
-app.use(express.static('static'));
+app.get('/api/mgt/:mgtKey/update', checkManagementKey, (req, res) => {
+    updater.updateToLatest('data', 'data/static').then(p => {
+        res.send(p);
+    }).catch(err => {
+        res.send({error: err});
+    });
+});
+
+/* ------------ EXPRESS ---------- */
+
+if (!fs.existsSync('data')) fs.mkdirSync('data');
+if (!fs.existsSync('data/static')) fs.mkdirSync('data/static');
+
+app.use(express.static('data/static'));
 app.get('*', (req, res) => {
-    res.sendFile(DIRNAME + '/static/index.html');
+    res.sendFile(DIRNAME + '/data/static/index.html');
 });
 
 app.listen(PORT, () => {
     console.log(`Server listening on port ${PORT}`);
 });
+
+if (!fs.existsSync('data/static/index.html')) {
+    updater.updateToLatest('data', 'data/static').catch(err => {
+        throw err;
+    });
+}
