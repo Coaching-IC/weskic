@@ -26,8 +26,7 @@
     <InfoQuestion class="question" question="Comment fonctionne la réservation ?">
       <p>La réservation complète se fait en plusieurs étape, tout se passera sur ce site.
         En cas de <strong>problème de santé nécessitant une attention particulière</strong> vous pourrez
-        contacter notre Supercoach Paul Madelénat qui sera le responsable sécurité pour le WESKIC
-        (+ secouriste EPFL). <br>Voici les différentes étapes : </p>
+        contacter notre Supercoach Paul Madelénat qui sera le responsable sécurité pour le WESKIC. <br>Voici les différentes étapes : </p>
       <ul style="list-style: decimal;">
         <li><strong>"ÉTAPE 0" - Connexion avec Tequila</strong>
           <p>Vérification de la date d'inscription. Une fois connecté ta place est

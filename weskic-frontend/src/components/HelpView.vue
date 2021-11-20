@@ -28,7 +28,7 @@
           <b-input type="textarea"></b-input>
         </b-field>
 
-        <p>Le responsable aproprié recevra ton message par mail. </p>
+        <p>Le responsable approprié recevra ton message par mail. </p>
 
         <b-button type="is-info" expanded>Envoyer !</b-button>
       </div>
