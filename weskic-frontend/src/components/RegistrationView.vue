@@ -1,10 +1,14 @@
 <template>
   <div id="topRegistration">
-<!--    <b-button id="logoutTop" type="is-warning is-outlined" tag="router-link" :to="{name: 'logout'}">Déconnexion</b-button>-->
     <div id="box" class="box container">
-
-      <h1 class="subtitle has-text-centered">Tu dois valider l'étape 1 avant le <strong>3 décembre</strong></h1>
-
+      <div class="is-flex is-justify-content-center">
+        <h1 class="subtitle has-text-centered">Tu dois valider l'étape 1 avant le <strong>3 décembre</strong></h1>
+        <div id="topBtns">
+          <b-button class="btnTop" type="is-info" tag="router-link" :to="{name: 'info'}" target="_blank">Informations</b-button>
+          <b-button class="btnTop" type="" tag="router-link" :to="{name: 'help'}" target="_blank">J'ai besoin d'aide</b-button>
+          <b-button class="btnTop" type="" tag="router-link" :to="{name: 'logout'}">Déconnexion</b-button>
+        </div>
+      </div>
       <b-steps
           v-model="activeStep"
           animated
@@ -27,7 +31,6 @@
           Lorem ipsum dolor sit amet.
         </b-step-item>
       </b-steps>
-
     </div>
   </div>
 </template>
@@ -47,10 +50,17 @@ export default {
 
 <style scoped>
 
-#logoutTop {
-  position: absolute;
-  top: 15px;
-  right: 15px;
+.subtitle {
+  margin-bottom: 0;
+}
+
+#topBtns {
+  margin-left: auto;
+}
+
+.btnTop {
+  margin-left: 10px;
+  margin-bottom: 5px;
 }
 
 #box {
