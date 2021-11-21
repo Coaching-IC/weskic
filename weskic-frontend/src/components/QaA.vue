@@ -37,8 +37,7 @@
             On te demandera aussi un contact d'urgence, de signer une décharge et de fournir deux documents indispensables :
             une <strong>pièce d'identité</strong> et ta <strong>carte d'assurance</strong>.</p></li>
         <li><strong>ÉTAPE 2 - Paiement</strong>
-          <p>On propose deux méthodes de paiement. Soit <strong>en ligne</strong> avec une carte de crédit ou TWINT,
-            soit à la Boutique AGEPoly <strong>en cash</strong>.<br><strong>Attention: vous avez 5 jours pour
+          <p>Les différents moyens de paiement ne sont pas encore fixés mais il y aura au moins la possibilité de payer en ligne par CB. Ce paragraphe sera mis à jour ultérieurement.<br><strong>Attention: vous avez 5 jours pour
               effectuer votre paiement à compter de votre première connexion Tequila. Votre place n'est plus
               garantie après ce délai.</strong></p></li>
         <li><strong>ÉTAPE 3 - Matériel et compléments</strong>
