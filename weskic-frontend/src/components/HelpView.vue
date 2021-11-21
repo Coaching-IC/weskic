@@ -5,17 +5,17 @@
       <div>
         <b-field label="Question ou problème de type ...">
           <div class="is-flex is-flex-direction-column">
-            <b-radio v-model="requestType" name="admin" native-value="admin" class="marginBottom10">
-              Administratif
-            </b-radio>
             <b-radio v-model="requestType" name="registration" native-value="registration" class="marginBottom10">
               Inscription / Site internet / IT
             </b-radio>
             <b-radio v-model="requestType" name="activity" native-value="activity" class="marginBottom10">
               Activités / Animation
             </b-radio>
+            <b-radio v-model="requestType" name="admin" native-value="admin" class="marginBottom10">
+              Administratif
+            </b-radio>
             <b-radio v-model="requestType" name="report" native-value="report" class="marginBottom10">
-              Plainte
+              Plainte / Reporter un abus
             </b-radio>
           </div>
         </b-field>
@@ -28,7 +28,7 @@
           <b-input type="textarea"></b-input>
         </b-field>
 
-        <p>Le responsable aproprié recevra ton message par mail. </p>
+        <p>Le responsable approprié recevra ton message par mail. <strong>Seuls les Supercoachs voient les plaintes</strong>.</p>
 
         <b-button type="is-info" expanded>Envoyer !</b-button>
       </div>
