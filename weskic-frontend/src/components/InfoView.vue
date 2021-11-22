@@ -7,12 +7,15 @@
           <img id="logo-weskic" src="../assets/weskic-logo.png" alt="Logo WESKIC">
           <h1 class="title">Weekend Ski Coaching IC - 11-13 mars 2022</h1>
           <p>
-            Le Weekend Ski du Coaching IC revient en force cette année avec un jour de plus, un nouveau chalet et bien plus encore !
+            Le traditionnel Week-end Ski du Coaching IC revient en force cette année avec un jour de plus, un nouveau chalet et bien
+            plus encore ! Ça se passera au Torgon Alpine Center. Au menu : ski, snowboard, luge, sans oublier les soirées !
           </p>
           <hr>
-          <b-button type="is-success" expanded tag="router-link" :to="{name: 'login'}">Inscriptions</b-button>
+          <b-button :disabled="registrationStatus!==0" type="is-success" expanded tag="router-link"
+                    :to="{name: 'login'}">{{ registrationBtnText }}
+          </b-button>
           <br>
-          <h3 class="subtitle">N'hésite pas à nous contacter si les questions ci-dessous ne suffisent pas ;)</h3>
+          <h3 class="subtitle">N'hésite pas à <strong>nous contacter sur Telegram</strong> si les questions ci-dessous ne suffisent pas ;)</h3>
         </div>
       </div>
       <div class="column">
@@ -30,14 +33,17 @@
             <li><strong>3</strong> décembre midi - <strong>IN/SC BA1/3</strong></li>
             <li><strong>6</strong> décembre midi - <strong>IN/SC</strong></li>
             <li><strong>8</strong> décembre midi - <strong>EPFL</strong></li>
-          </ul><br>
-          Conditions de participation : tu dois <strong>être majeur</strong> et avoir un <strong>certificat COVID</strong> valide pour tout le séjour.
+          </ul>
+          <br>
+          <strong>Conditions de participation</strong> : tu dois <strong>être majeur</strong> et avoir un <strong>certificat
+          COVID</strong> valide pour tout le séjour.<br><br>
+          Bien que le site fonctionne sur mobile, il est recommandé d'utiliser un ordinateur pour remplir les formulaires.
         </div>
 
       </div>
     </div>
 
-      <QaA></QaA>
+    <QaA></QaA>
 
     <div id="footer">
       <img id="logo-coaching" src="../assets/logo-full.png" alt="logo coaching">
@@ -48,10 +54,28 @@
 <script>
 import QaA from "@/components/QaA";
 
+const now = new Date();
+const openDate = new Date('2021-12-01T11:00:00Z');
+const closeDate = new Date('2022-01-01T11:00:00Z');
+
 export default {
   name: 'InfoView',
   components: {QaA},
-  props: {}
+  props: {},
+  computed: {
+    registrationStatus: () => {
+      if (now - openDate < 0) return -1;
+      if (now - openDate >= 0 && now - closeDate <= 0) return 0;
+      if (now - closeDate > 0) return 1;
+      throw 'impossible';
+    },
+    registrationBtnText: () => {
+      if (now - openDate < 0) return 'Inscriptions (trop tôt!)';
+      if (now - openDate >= 0 && now - closeDate <= 0) return 'Inscriptions';
+      if (now - closeDate > 0) return 'Inscriptions fermées';
+      throw 'impossible';
+    }
+  }
 }
 </script>
 
