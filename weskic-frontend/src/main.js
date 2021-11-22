@@ -21,18 +21,18 @@ Vue.use(Vuex);
 const store = new Vuex.Store({
     state: {
         jwt: localStorage.getItem('jwt') || '',
-        tequilaData: JSON.parse(localStorage.getItem('tequilaData')) || {},
+        userData: JSON.parse(localStorage.getItem('userData')) || {},
     },
     mutations: {
-        loggedIn(state, {jwt, tequilaData}) {
+        loggedIn(state, {jwt, userData}) {
             state.jwt = jwt;
-            state.tequilaData = tequilaData;
+            state.userData = userData;
             localStorage.setItem('jwt', jwt);
-            localStorage.setItem('tequilaData', JSON.stringify(tequilaData));
+            localStorage.setItem('userData', JSON.stringify(userData));
         },
         logout(state) {
             state.jwt = '';
-            state.tequilaData = {};
+            state.userData = {};
             localStorage.clear();
         }
     },
