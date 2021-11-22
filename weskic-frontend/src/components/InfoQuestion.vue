@@ -6,7 +6,7 @@
       :open="false">
     <template #trigger="props">
       <div
-          class="card-header"
+          :class="important ? 'card-header is-important' : 'card-header'"
           role="button"
           aria-controls="contentIdForA11y3">
         <p class="card-header-title">
@@ -28,10 +28,15 @@
 
 export default {
   name: 'InfoQuestion',
-  props: ['question','answer'],
+  props: ['question','answer','important'],
   methods: {}
 }
 </script>
 
 <style scoped>
+
+.is-important {
+  background-color: #f14668;
+}
+
 </style>

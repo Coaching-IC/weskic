@@ -11,6 +11,7 @@ import LoginView from "@/components/LoginView";
 import InfoView from "@/components/InfoView";
 import NotFoundView from "@/components/NotFoundView";
 import RegistrationView from "@/components/RegistrationView";
+import HelpView from "@/components/HelpView";
 
 Vue.config.productionTip = false;
 Vue.use(Buefy);
@@ -136,6 +137,11 @@ const routes = [
     {path: '/tequila', beforeEnter: tequilaResponseHandler},
     {
         path: '/registration', component: RegistrationView, name: 'registration', beforeEnter: (from, to, next) => {
+            if (store.state.jwt === '') next({name: 'login'}); else next();
+        }
+    },
+    {
+        path: '/help', component: HelpView, name: 'help', beforeEnter: (from, to, next) => {
             if (store.state.jwt === '') next({name: 'login'}); else next();
         }
     },
