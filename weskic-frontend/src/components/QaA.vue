@@ -36,6 +36,28 @@
         <a href="mailto:hugues.devimeux@epfl.ch,paul.madelenat@epfl.ch">Hugues Devimeux et Paul Madelénat</a>.</p>
     </InfoQuestion>
 
+    <InfoQuestion class="question" question="Qu'est-ce que le prix de base de CHF 135.- ?">
+      <div class="columns" style="">
+        <div class="column">
+          <img class="" src="../assets/price-graph.png"  alt=""/>
+        </div>
+        <div class="column">
+          <h5 class="subtitle">Le prix de base</h5>
+          <p>C'est le prix minimal du séjour tout compris. Ci-contre une illustration qui représente les
+            parts qui composent ce prix. Le prix de base n'inclue pas deux options : le forfait de ski et l'éventuelle location de matériel.</p>
+
+          <h5 class="subtitle">Forfait de ski</h5>
+          <p>
+            Tu n'es pas obligé de prendre un abonnement, il y d'autres activités possibles et tu es libre à vous d'explorer la station.
+            Pour ceux qui veulent l'abonnement on propose de prendre un ou deux jours. Nous afficherons les prix des forfaits très prochainement.
+          </p>
+
+          <h5 class="subtitle">Location de matériel</h5>
+          <p>Pour le matériel on vous expliquera tout d'ici février, en gros on gère la logistique pour vous même si c'est vôtre matériel.</p>
+        </div>
+      </div>
+    </InfoQuestion>
+
     <InfoQuestion class="question" question="Comment annuler ma réservation ?">
       <p>Les termes d'annulations seront décidés à la prochaine réunion du comité : mardi 23 novembre.</p>
     </InfoQuestion>
@@ -77,6 +99,10 @@ export default {
 </script>
 
 <style scoped>
+
+h5.subtitle {
+  margin-bottom: 5px;
+}
 
 .questionsSectionTitle {
   color: white;

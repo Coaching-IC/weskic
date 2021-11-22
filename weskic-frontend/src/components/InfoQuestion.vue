@@ -17,7 +17,7 @@
     </template>
 
     <div class="card-content">
-      <div class="content">
+      <div class="content is-relative">
         <slot></slot>
       </div>
     </div>
