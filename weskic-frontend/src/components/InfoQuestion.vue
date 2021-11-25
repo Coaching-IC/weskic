@@ -17,7 +17,7 @@
     </template>
 
     <div class="card-content">
-      <div class="content">
+      <div class="content is-relative">
         <slot></slot>
       </div>
     </div>
@@ -36,7 +36,7 @@ export default {
 <style scoped>
 
 .is-important {
-  background-color: #f14668;
+  background-color: #ffe08a;
 }
 
 </style>
