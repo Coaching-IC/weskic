@@ -36,7 +36,7 @@ export default {
 <style scoped>
 
 .is-important {
-  background-color: #f14668;
+  background-color: #ffe08a;
 }
 
 </style>

@@ -10,17 +10,19 @@
         <li><strong>"ÉTAPE 0" - Connexion avec Tequila</strong>
           <p>Vérification de la date d'inscription. Une fois connecté ta place est
             garantie pendent une heure jusqu'à ce que tu termines l'étape suivante.<br>
-            Si toutes les places sont prises tu seras ajouté à une liste d'attente et tu seras contacté pour compléter ton inscription.</p></li>
+            Si toutes les places sont prises tu seras ajouté à une liste d'attente et tu seras contacté par Telegram pour compléter ton inscription.</p></li>
         <li><strong>ÉTAPE 1 - Informations personnelles</strong>
           <p>C'est ici que tu préciseras si tu as des allergies, des contraintes alimentaires ou des remarques.
-            On te demandera aussi un contact d'urgence, de signer une décharge et de fournir deux documents indispensables :
+            On te demandera aussi un contact d'urgence, de signer une décharge, de rejoindre un channel Telegram, et de fournir deux documents indispensables :
             une <strong>pièce d'identité</strong> et ta <strong>carte d'assurance</strong>.</p></li>
         <li><strong>ÉTAPE 2 - Paiement</strong>
-          <p>Les différents moyens de paiement ne sont pas encore fixés mais il y aura au moins la possibilité de payer en ligne par CB. Ce paragraphe sera mis à jour ultérieurement.<br><strong>Attention: vous avez 5 jours pour
-            effectuer votre paiement à compter de votre première connexion Tequila. Votre place n'est plus
-            garantie après ce délai.</strong></p></li>
+          <p>Une fois qu'on aura validé l'étape 1, tu seras notifié par Telegram pour passer au paiement.<br>
+            Les différents moyens de paiement ne sont pas encore fixés mais il y aura au moins la possibilité de payer
+            en ligne par CB. Ce paragraphe sera mis à jour ultérieurement.<br>
+            <strong>Attention: vous avez 5 jours pour effectuer votre paiement à compter de la validation de l'étape 1.
+              Votre place n'est plus garantie après ce délai.</strong></p></li>
         <li><strong>ÉTAPE 3 - Matériel et compléments</strong>
-          <p>À partir de cette étape il faut attendre février. On vous donnera plus d'informations pour la location (facultative et à votre charge) de matériel de ski.</p></li>
+          <p>À partir de cette étape il faut attendre février. On vous donnera plus d'informations pour la location (facultative et à votre charge) de matériel de ski et snow.</p></li>
         <li><strong>ÉTAPE 4 - Placement dans les chambres</strong>
           <p>Tu pourras choisir ta chambre librement sur le site de réservation.
             Les chambres ne seront pas mixtes et les noms des occupants ne seront pas affichés.
@@ -36,7 +38,7 @@
         <a href="mailto:hugues.devimeux@epfl.ch,paul.madelenat@epfl.ch">Hugues Devimeux et Paul Madelénat</a>.</p>
     </InfoQuestion>
 
-    <InfoQuestion class="question" question="Qu'est-ce que le prix de base de CHF 135.- ?">
+    <InfoQuestion class="question" question="Qu'est-ce que le prix de base de CHF 135.- ? Qu'est-ce qui est compris ?">
       <div class="columns" style="">
         <div class="column">
           <img class="" src="../assets/price-graph.png"  alt=""/>
@@ -44,11 +46,11 @@
         <div class="column">
           <h5 class="subtitle">Le prix de base</h5>
           <p>C'est le prix minimal du séjour tout compris. Ci-contre une illustration qui représente les
-            parts qui composent ce prix. Le prix de base n'inclue pas deux options : le forfait de ski et l'éventuelle location de matériel.</p>
+            parts qui composent ce prix. Le prix de base n'inclut pas deux options : le forfait de ski et l'éventuelle location de matériel.</p>
 
           <h5 class="subtitle">Forfait de ski</h5>
           <p>
-            Tu n'es pas obligé de prendre un abonnement, il y d'autres activités possibles et tu es libre à vous d'explorer la station.
+            Tu n'es pas obligé de prendre un abonnement, il y d'autres activités possibles et tu es libre d'explorer la station.
             Pour ceux qui veulent l'abonnement on propose de prendre un ou deux jours. Nous afficherons les prix des forfaits très prochainement.
           </p>
 
@@ -56,10 +58,6 @@
           <p>Pour le matériel on vous expliquera tout d'ici février, en gros on gère la logistique pour vous même si c'est vôtre matériel.</p>
         </div>
       </div>
-    </InfoQuestion>
-
-    <InfoQuestion class="question" question="Comment annuler ma réservation ?">
-      <p>Les termes d'annulations seront décidés à la prochaine réunion du comité : mardi 23 novembre.</p>
     </InfoQuestion>
 
     <h2 class="title questionsSectionTitle">Activités</h2>
@@ -81,6 +79,10 @@
 
     <InfoQuestion class="question" question="Est-ce que je dois savoir skier pour venir ?">
       <p>Même pas ! Notre incroyable Picsoucoach Maxime est également monitrice de ski. Elle organisera des cours gratuits pour débutants. Raison de plus de venir ;)</p>
+    </InfoQuestion>
+
+    <InfoQuestion class="question" question="... et pour le snow ?">
+      <p>Nous ne proposerons pas de cours de snowboard mais si tu sais déjà en faire tu pourras en louer.</p>
     </InfoQuestion>
 
   </div>

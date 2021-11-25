@@ -77,7 +77,10 @@
             <b-checkbox v-model="diets" native-value="vegetarian" class="marginBottom10">
               Végétarien
             </b-checkbox>
-            <b-checkbox v-model="diets" native-value="no-porc" class="marginBottom10">
+            <b-checkbox v-model="diets" native-value="gluten-free" class="marginBottom10">
+              Sans-gluten
+            </b-checkbox>
+            <b-checkbox v-model="diets" native-value="pork-free" class="marginBottom10">
               Sans-porc
             </b-checkbox>
             <b-checkbox v-model="diets" native-value="no-cheese" class="marginBottom10">
