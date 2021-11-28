@@ -44,7 +44,7 @@ app.use(morgan(':method :url :status :res[content-length] - :response-time ms', 
 }));
 
 app.use(accessControl.accessControlRouter);
-app.use('/api/reg/', registration.registrationRouter);
+app.use('/api/reg/', accessControl.checkAuthentication, registration.registrationRouter);
 
 /* ------------ MANAGEMENT ---------- */
 
@@ -70,6 +70,10 @@ app.get('/api/mgt/:mgtKey/update', checkManagementKey, (req, res) => {
     }).catch(err => {
         res.send({error: err});
     });
+});
+
+app.get('/api/mgt/:mgtKey/userData/:sciper', checkManagementKey, (req, res) => {
+   res.send(JSON.stringify(userData.getUserDataFromCache(req.params.sciper), null, ' '));
 });
 
 /* ------------ EXPRESS ---------- */

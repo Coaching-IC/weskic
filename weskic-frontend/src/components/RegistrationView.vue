@@ -1,9 +1,9 @@
 <template>
   <div id="topRegistration">
     <div id="box" class="box container">
-      <div class="is-flex is-justify-content-center">
+      <div class="is-flex is-flex-direction-column">
         <h1 class="subtitle has-text-centered">Tu dois valider l'étape 1 avant le <strong>3 décembre</strong></h1>
-        <div id="topBtns">
+        <div class="is-flex is-flex-direction-row is-justify-content-space-around" style="margin: 5px;">
           <b-button class="btnTop" type="is-info" tag="router-link" :to="{name: 'info'}" target="_blank">Informations</b-button>
           <b-button class="btnTop" type="" tag="router-link" :to="{name: 'help'}" target="_blank">J'ai besoin d'aide</b-button>
           <b-button class="btnTop" type="" tag="router-link" :to="{name: 'logout'}">Déconnexion</b-button>
@@ -20,15 +20,15 @@
         </b-step-item>
 
         <b-step-item step="2" label="Paiement">
-          Lorem ipsum dolor sit amet.
+          Cette étape est indisponible
         </b-step-item>
 
-        <b-step-item step="3" label="Matériel et compléments">
-          Lorem ipsum dolor sit amet.
+        <b-step-item step="3" label="Location de matériel">
+          Cette étape est indisponible
         </b-step-item>
 
         <b-step-item step="4" label="Placement dans les chambres">
-          Lorem ipsum dolor sit amet.
+          Cette étape est indisponible
         </b-step-item>
       </b-steps>
     </div>
@@ -44,7 +44,10 @@ export default {
   data: () => ({
     activeStep: 0
   }),
-  props: {}
+  props: {},
+  mounted() {
+
+  }
 }
 </script>
 
@@ -52,10 +55,6 @@ export default {
 
 .subtitle {
   margin-bottom: 0;
-}
-
-#topBtns {
-  margin-left: auto;
 }
 
 .btnTop {

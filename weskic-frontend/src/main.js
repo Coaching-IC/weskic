@@ -12,47 +12,15 @@ import InfoView from "@/components/InfoView";
 import NotFoundView from "@/components/NotFoundView";
 import RegistrationView from "@/components/RegistrationView";
 import HelpView from "@/components/HelpView";
+import vuexStoreOptions from './vuexStoreOptions';
+
 
 Vue.config.productionTip = false;
 Vue.use(Buefy);
 Vue.use(VueRouter);
 Vue.use(Vuex);
 
-const store = new Vuex.Store({
-    state: {
-        jwt: localStorage.getItem('jwt') || '',
-        userData: JSON.parse(localStorage.getItem('userData')) || {},
-    },
-    mutations: {
-        loggedIn(state, {jwt, userData}) {
-            state.jwt = jwt;
-            state.userData = userData;
-            localStorage.setItem('jwt', jwt);
-            localStorage.setItem('userData', JSON.stringify(userData));
-        },
-        logout(state) {
-            state.jwt = '';
-            state.userData = {};
-            localStorage.clear();
-        }
-    },
-    actions: {
-        loginWithTequila() {
-            fetch('/api/tequila/request').then(response => response.json()).then(res => {
-                if (res.tequilaUrl) {
-                    window.location = res.tequilaUrl;
-                }
-            }).catch(err => {
-                console.error('Failed to reach the API', err);
-                Toast.open({
-                    message: 'Failed to reach the API',
-                    type: 'is-danger',
-                    position: 'is-top',
-                });
-            });
-        }
-    }
-});
+const store = new Vuex.Store(vuexStoreOptions);
 
 function tequilaResponseHandler(to, from, next) {
     if (!to.query.key) {

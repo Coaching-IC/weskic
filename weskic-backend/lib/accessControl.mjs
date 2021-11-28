@@ -1,14 +1,19 @@
 import dotenv from "dotenv";
+
 dotenv.config();
 import express from "express";
 import jwt from "jsonwebtoken";
 import tequila from "./tequila.mjs";
 import userData from "./userData.mjs";
+import {getLogger} from "./logger.mjs";
 
 const JWT_KEY = process.env.JWT_KEY;
 const TEQUILA_RETURN_URL = process.env.TEQUILA_RETURN_URL;
 const UNITS_RULES = process.env.UNITS_RULES.split(' ');
 const ADMINS = (process.env.ADMINS && process.env.ADMINS.split(',')) || [];
+const PROD = process.env.NODE_ENV.toLowerCase() === 'production';
+
+const logger = getLogger(PROD);
 
 let accessControlRouter = express.Router();
 
@@ -19,12 +24,13 @@ const checkAuthentication = function (req, res, next) {
     const bearerToken = req.headers['authorization'];
     if (typeof bearerToken !== 'undefined') {
         const tokenString = bearerToken.split(' ')[1];
-        jwt.verify(tokenString, JWT_KEY, (err, userData) => {
+        jwt.verify(tokenString, JWT_KEY, (err, jwtData) => {
             if (err) {
                 logger.error(`JWT Verification failed : ${err}, IP: ${req.ip}`);
                 return res.sendStatus(403);
             }
-            req.userData = userData;
+            req.jwtData = jwtData;
+            req.userData = userData.getUserDataFromCache(jwtData.sciper);
             checkUnit(req, res, next);
         });
     } else {
@@ -34,13 +40,13 @@ const checkAuthentication = function (req, res, next) {
 
 const checkUnit = function (req, res, next) {
     if (authorizeEveryone) return next();
-    if (ADMINS.includes(req.userData.sciper)) return next();
+    if (ADMINS.includes(req.jwtData.sciper)) return next();
     let errDate = false;
     let errList = false;
     let firstDate = undefined;
     let wildcardDate = undefined;
 
-    for (let unit of req.userData.units) {
+    for (let unit of req.jwtData.units) {
         if (authorizedUnits.includes(unit)) {
             next();
         } else {
@@ -86,8 +92,9 @@ const checkUnit = function (req, res, next) {
     throw 'This should not happend';
 }
 
-const checkAdmin = function (req, res, next) {
-    if (ADMINS.includes(req.userData.sciper)) next();
+const checkRole = function (req, res, next) {
+    //TODO checkRole works only for admins
+    if (ADMINS.includes(req.jwtData.sciper)) next();
     else res.sendStatus(403);
 }
 
@@ -124,7 +131,7 @@ accessControlRouter.post('/api/tequila/login', (req, res) => {
             return res.send({error: 'ERR_TEQUILA'});
         }
         checkUnit({
-            userData: {
+            jwtData: {
                 units: tequilaAttributes.allunits.split(','),
                 sciper: tequilaAttributes.uniqueid
             }
@@ -139,4 +146,4 @@ accessControlRouter.post('/api/tequila/login', (req, res) => {
     });
 });
 
-export default {accessControlRouter};
+export default {accessControlRouter, checkAuthentication, checkRole};

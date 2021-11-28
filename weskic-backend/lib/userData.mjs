@@ -11,8 +11,8 @@ let dataToSave = false;
 fsE.ensureDirSync('data/user-data');
 
 function loadEncryptedData() {
-    const scipers = fs.readdirSync('data/user-data').filter(val => val.endsWith('.aes')).map(s => s.slice(5,11));
-    BPromise.each(scipers,sciper => restoreEncryptedUD(sciper)).then(() => {
+    const scipers = fs.readdirSync('data/user-data').filter(val => val.endsWith('.aes')).map(s => s.slice(5, 11));
+    BPromise.each(scipers, sciper => restoreEncryptedUD(sciper)).then(() => {
         logger.debug(`Loaded ${Object.keys(userDataCache).length} user data objects.`);
     });
 }
@@ -23,7 +23,7 @@ function storeEncryptedUD(sciper) {
         const cipher = crypto.createCipheriv('aes-256-gcm', key, iv);
         const encrypted = Buffer.concat([cipher.update(JSON.stringify(userDataCache[sciper])), cipher.final()])
         const authTag = cipher.getAuthTag();
-        const output = Buffer.concat([iv,authTag,encrypted]);
+        const output = Buffer.concat([iv, authTag, encrypted]);
         fs.writeFile(`data/user-data/user-${sciper}.aes`, output, err => {
             if (err) reject(err);
             else resolve();
@@ -36,8 +36,8 @@ function restoreEncryptedUD(sciper) {
     return new BPromise((resolve, reject) => {
         fs.readFile(`data/user-data/user-${sciper}.aes`, (err, all_data) => {
             if (err) reject(err);
-            const iv = all_data.slice(0,16);
-            const authTag = all_data.slice(16,32);
+            const iv = all_data.slice(0, 16);
+            const authTag = all_data.slice(16, 32);
             const encrypted = all_data.slice(32);
             const decipher = crypto.createDecipheriv('aes-256-gcm', key, iv);
             decipher.setAuthTag(authTag);
@@ -58,7 +58,7 @@ function saveUserData(sciper) {
                 logger.error(`Save : Can't find user data for ${sciper}`);
                 reject();
             } else {
-
+                storeEncryptedUD(sciper).then(resolve).catch(reject);
             }
         } else {
             BPromise.map(Object.keys(userDataCache), sciper => storeEncryptedUD(sciper)).then(resolve).catch(reject);
@@ -75,7 +75,7 @@ function createUserData(tequilaAttributes) {
                 sciper,
                 units: tequilaAttributes.allunits.split(','),
                 tequilaName: tequilaAttributes.displayname,
-                registrationDate: now.toISOString()
+                registrationDate: now.toISOString(),
             }
         };
         storeEncryptedUD(sciper).then(() => {
@@ -123,4 +123,64 @@ function checkTequilaAttributes(tequilaAttributes) {
     });
 }
 
-export default {init, beforeExit, checkTequilaAttributes};
+function mutateUserData(sciper, ud, lazy) {
+    console.log(ud);
+    return new Promise((resolve, reject) => {
+        if (!userDataCache[sciper]) return reject('unknown sciper');
+        mergeDeep(userDataCache[sciper], ud);
+        if (lazy) {
+            dataToSave = true;
+            resolve(userDataCache[sciper]);
+        } else {
+            saveUserData(sciper).then(resolve).catch(reject);
+        }
+    });
+}
+
+function storeUserFile(sciper, fileId, buffer) {
+    return new Promise((resolve, reject) => {
+
+    });
+}
+
+function updateTelegramStatus(sciper, username, hasJoined) {
+    userDataCache[sciper].step1 = userDataCache[sciper].step1 || {};
+    userDataCache[sciper].step1.dischargeTelegram = userDataCache[sciper].step1.dischargeTelegram || {};
+    userDataCache[sciper].step1.dischargeTelegram.telegram = userDataCache[sciper].step1.dischargeTelegram.telegram || {};
+    userDataCache[sciper].step1.dischargeTelegram.telegram.username = username;
+    userDataCache[sciper].step1.dischargeTelegram.telegram.hasJoined = hasJoined;
+    dataToSave = true;
+}
+
+function getUserDataFromCache(sciper) {
+    return userDataCache[sciper];
+}
+
+export default {
+    init, beforeExit, checkTequilaAttributes, mutateUserData, updateTelegramStatus,
+    getUserDataFromCache
+};
+
+/* ---------- HELPERS ---------- */
+
+function isObject(item) {
+    return (item && typeof item === 'object' && !Array.isArray(item));
+}
+
+function mergeDeep(target, ...sources) {
+    if (!sources.length) return target;
+    const source = sources.shift();
+
+    if (isObject(target) && isObject(source)) {
+        for (const key in source) {
+            if (isObject(source[key])) {
+                if (!target[key]) Object.assign(target, {[key]: {}});
+                mergeDeep(target[key], source[key]);
+            } else {
+                Object.assign(target, {[key]: source[key]});
+            }
+        }
+    }
+
+    return mergeDeep(target, ...sources);
+}
