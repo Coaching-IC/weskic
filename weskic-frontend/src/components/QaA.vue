@@ -16,11 +16,9 @@
             On te demandera aussi un contact d'urgence, de signer une décharge, de rejoindre un channel Telegram, et de fournir deux documents indispensables :
             une <strong>pièce d'identité</strong> et ta <strong>carte d'assurance</strong>.</p></li>
         <li><strong>ÉTAPE 2 - Paiement</strong>
-          <p>Une fois qu'on aura validé l'étape 1, tu seras notifié par Telegram pour passer au paiement.<br>
-            Les différents moyens de paiement ne sont pas encore fixés mais il y aura au moins la possibilité de payer
-            en ligne par CB. Ce paragraphe sera mis à jour ultérieurement.<br>
-            <strong>Attention: vous avez 5 jours pour effectuer votre paiement à compter de la validation de l'étape 1.
-              Votre place n'est plus garantie après ce délai.</strong></p></li>
+          <p>Vous pouvez payez par deux moyens : soit directement sur ce site (PostFinance), soit en passant à la boutique AGEPoly (Cash, TWINT, Camipro)<br>
+            Pour le prix regardez la question ci-dessous.<br>
+            <strong>Attention: un délais vous sera indiqué. Une fois passé votre place n'est plus garantie.</strong></p></li>
         <li><strong>ÉTAPE 3 - Matériel et compléments</strong>
           <p>À partir de cette étape il faut attendre février. On vous donnera plus d'informations pour la location (facultative et à votre charge) de matériel de ski et snow.</p></li>
         <li><strong>ÉTAPE 4 - Placement dans les chambres</strong>
@@ -51,8 +49,16 @@
           <h5 class="subtitle">Forfait de ski</h5>
           <p>
             Tu n'es pas obligé de prendre un abonnement, il y d'autres activités possibles et tu es libre d'explorer la station.
-            Pour ceux qui veulent l'abonnement on propose de prendre un ou deux jours. Nous afficherons les prix des forfaits très prochainement.
+            Pour ceux qui veulent l'abonnement vous avez plusieurs possibilités :
           </p>
+          <ul>
+            <li><p>Jour 1 - Vendredi : <strong>Espace Torgon</strong>, paiement sur ce site en même temps que le prix de base. Prix de groupe : 26.00 CHF</p></li>
+            <li><p>Jour 2 - Samedi : <strong>Espace Liberté</strong>, simple sondage, paiement sur place. Ce domaine est bien
+              plus grand et un peu plus cher. Si assez de personnes veulent skier le forfait de groupe
+              sera aussi disponible pour ce jour. Sinon ce sera 39.00 CHF </p></li>
+            <li><p>Jour 3 - Samedi : simple sondage, paiement sur place. Attention : c'est le jour du départ donc si vous skiez vous rentrez <strong>par vos propres moyens</strong></p></li>
+          </ul>
+
 
           <h5 class="subtitle">Location de matériel</h5>
           <p>Pour le matériel on vous expliquera tout d'ici février, en gros on gère la logistique pour vous même si c'est vôtre matériel.</p>
