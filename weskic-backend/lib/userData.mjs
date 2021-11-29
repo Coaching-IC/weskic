@@ -129,11 +129,9 @@ function createUserData(tequilaAttributes) {
 
 function init(encryptionKey, udLogger) {
     if (encryptionKey === undefined) {
-        logger.error('NO ENCRYPTION KEY');
         throw 'NO_ENCRYPTION_KEY';
     } else if (encryptionKey.length !== 32) {
-        logger.error('ENCRYPTION KEY MUST BE 32B LONG');
-        throw 'ENCRYPTION_KEY_LENGTH';
+        throw 'ENCRYPTION KEY MUST BE 32B LONG';
     }
     key = encryptionKey;
     logger = udLogger;
