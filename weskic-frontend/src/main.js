@@ -12,47 +12,16 @@ import InfoView from "@/components/InfoView";
 import NotFoundView from "@/components/NotFoundView";
 import RegistrationView from "@/components/RegistrationView";
 import HelpView from "@/components/HelpView";
+import vuexStoreOptions from './vuexStoreOptions';
+import DischargeForm from "@/components/registration/DischargeForm";
+
 
 Vue.config.productionTip = false;
 Vue.use(Buefy);
 Vue.use(VueRouter);
 Vue.use(Vuex);
 
-const store = new Vuex.Store({
-    state: {
-        jwt: localStorage.getItem('jwt') || '',
-        tequilaData: JSON.parse(localStorage.getItem('tequilaData')) || {},
-    },
-    mutations: {
-        loggedIn(state, {jwt, tequilaData}) {
-            state.jwt = jwt;
-            state.tequilaData = tequilaData;
-            localStorage.setItem('jwt', jwt);
-            localStorage.setItem('tequilaData', JSON.stringify(tequilaData));
-        },
-        logout(state) {
-            state.jwt = '';
-            state.tequilaData = {};
-            localStorage.clear();
-        }
-    },
-    actions: {
-        loginWithTequila() {
-            fetch('/api/tequila/request').then(response => response.json()).then(res => {
-                if (res.tequilaUrl) {
-                    window.location = res.tequilaUrl;
-                }
-            }).catch(err => {
-                console.error('Failed to reach the API', err);
-                Toast.open({
-                    message: 'Failed to reach the API',
-                    type: 'is-danger',
-                    position: 'is-top',
-                });
-            });
-        }
-    }
-});
+const store = new Vuex.Store(vuexStoreOptions);
 
 function tequilaResponseHandler(to, from, next) {
     if (!to.query.key) {
@@ -125,6 +94,11 @@ function tequilaResponseHandler(to, from, next) {
     });
 }
 
+function dischargeHandler(to, from, next) {
+    store.commit('partialLogin', {jwt: to.params.jwt});
+    next();
+}
+
 const routes = [
     {path: '/', redirect: {name: 'info'}},
     {path: '/info', component: InfoView, name: 'info'},
@@ -134,6 +108,7 @@ const routes = [
         }
     },
     {path: '/not-found', component: NotFoundView, name: 'not-found'},
+    {path: '/discharge/:jwt', beforeEnter: dischargeHandler, component: DischargeForm, name: 'discharge'},
     {path: '/tequila', beforeEnter: tequilaResponseHandler},
     {
         path: '/registration', component: RegistrationView, name: 'registration', beforeEnter: (from, to, next) => {
