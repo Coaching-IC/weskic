@@ -131,6 +131,7 @@ function init(encryptionKey, udLogger) {
     if (encryptionKey === undefined) {
         throw 'NO_ENCRYPTION_KEY';
     } else if (encryptionKey.length !== 32) {
+        console.log('encryptionKey.length : ', encryptionKey, encryptionKey.length);
         throw 'ENCRYPTION KEY MUST BE 32B LONG';
     }
     key = encryptionKey;
