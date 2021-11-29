@@ -60,7 +60,7 @@ const accessTransportsDev = [
     accessDailyTransport,
     new winston.transports.Console({
         format: winston.format.combine(
-            winston.format.printf(info => `${info.timestamp} ACCESS: ${info.message.replaceAll('\n','')}` + (info.splat !== undefined ? `${info.splat}` : " ")),
+            winston.format.printf(info => `${info.timestamp} ACCESS: ${info.message.replace('\n','')}` + (info.splat !== undefined ? `${info.splat}` : " ")),
         )
     })
 ];
@@ -70,7 +70,7 @@ export function getAccessLogger(PROD) {
         level: 'info',
         format: winston.format.combine(
             winston.format.timestamp({format: 'YYY-MM-DD HH:mm:ss'}),
-            winston.format.printf(info => `${info.timestamp} ACCESS: ${info.message.replaceAll('\n','')}` + (info.splat !== undefined ? `${info.splat}` : " ")),
+            winston.format.printf(info => `${info.timestamp} ACCESS: ${info.message.replace('\n','')}` + (info.splat !== undefined ? `${info.splat}` : " ")),
         ),
         transports: PROD ? accessTransportsProduction : accessTransportsDev
     });

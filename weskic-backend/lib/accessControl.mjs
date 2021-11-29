@@ -105,8 +105,10 @@ const createJWT = function (tequilaObject) {
     }, JWT_KEY);
 }
 
-accessControlRouter.get('/api/tequila/request', (req, res) => {
-    tequila.generateKey(TEQUILA_RETURN_URL).then(key => {
+const handleTequilaRequest = (req, res) => {
+    const returnUrl = req.params.requestedPage ? TEQUILA_RETURN_URL + '/' + req.params.requestedPage : TEQUILA_RETURN_URL;
+    console.log('return url : ', returnUrl)
+    tequila.generateKey(returnUrl).then(key => {
         if (!key) {
             logger.error('Failed to generate a Tequila key');
             return res.sendStatus(500);
@@ -118,7 +120,9 @@ accessControlRouter.get('/api/tequila/request', (req, res) => {
         logger.error('REQUEST FETCH ERROR : ', err);
         res.sendStatus(500);
     });
-});
+}
+accessControlRouter.get('/api/tequila/request', handleTequilaRequest);
+accessControlRouter.get('/api/tequila/request/:requestedPage', handleTequilaRequest);
 
 accessControlRouter.post('/api/tequila/login', (req, res) => {
     if (!req.body.key) {

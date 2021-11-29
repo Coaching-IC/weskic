@@ -114,15 +114,15 @@ export default {
     },
 
     actions: {
-        loginWithTequila() {
-            fetch('/api/tequila/request').then(response => response.json()).then(res => {
+        loginWithTequila(_, requestedPage) {
+            fetch(requestedPage ? '/api/tequila/request/' + requestedPage : '/api/tequila/request').then(response => response.json()).then(res => {
                 if (res.tequilaUrl) {
                     window.location = res.tequilaUrl;
                 }
             }).catch(err => {
                 console.error('Failed to reach the API', err);
                 Toast.open({
-                    message: 'Failed to reach the API',
+                    message: 'Impossible de contacter le serveur',
                     type: 'is-danger',
                     position: 'is-top',
                 });
@@ -187,6 +187,10 @@ export default {
                     console.error('Failed to generate dischage', response);
                 }
             });
+        },
+
+        helpForm({state}, {type, subject, message}) {
+            return post(state, '/api/help-form', {type,subject,message});
         }
     }
 };

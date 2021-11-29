@@ -37,10 +37,12 @@ function tequilaResponseHandler(to, from, next) {
             key: to.query.key,
         })
     }).then(response => response.json()).then(message => {
-
         if (message['success'] === true) {
             store.commit('loggedIn', message);
-            router.push({name: 'registration'});
+            if (!to.params.requestedPage) router.push({name: 'registration'});
+            else {
+                router.push({name: to.params.requestedPage});
+            }
         } else {
             if (message['error'] === 'ERR_LIST') {
                 Toast.open({
@@ -110,6 +112,7 @@ const routes = [
     {path: '/not-found', component: NotFoundView, name: 'not-found'},
     {path: '/discharge/:jwt', beforeEnter: dischargeHandler, component: DischargeForm, name: 'discharge'},
     {path: '/tequila', beforeEnter: tequilaResponseHandler},
+    {path: '/tequila/:requestedPage', beforeEnter: tequilaResponseHandler},
     {
         path: '/registration', component: RegistrationView, name: 'registration', beforeEnter: (from, to, next) => {
             if (store.state.jwt === '') next({name: 'login'}); else next();
@@ -117,7 +120,7 @@ const routes = [
     },
     {
         path: '/help', component: HelpView, name: 'help', beforeEnter: (from, to, next) => {
-            if (store.state.jwt === '') next({name: 'login'}); else next();
+            if (store.state.jwt === '') store.dispatch('loginWithTequila', 'help'); else next();
         }
     },
     {
