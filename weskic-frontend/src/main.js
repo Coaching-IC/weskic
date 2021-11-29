@@ -13,6 +13,7 @@ import NotFoundView from "@/components/NotFoundView";
 import RegistrationView from "@/components/RegistrationView";
 import HelpView from "@/components/HelpView";
 import vuexStoreOptions from './vuexStoreOptions';
+import DischargeForm from "@/components/registration/DischargeForm";
 
 
 Vue.config.productionTip = false;
@@ -93,6 +94,11 @@ function tequilaResponseHandler(to, from, next) {
     });
 }
 
+function dischargeHandler(to, from, next) {
+    store.commit('partialLogin', {jwt: to.params.jwt});
+    next();
+}
+
 const routes = [
     {path: '/', redirect: {name: 'info'}},
     {path: '/info', component: InfoView, name: 'info'},
@@ -102,6 +108,7 @@ const routes = [
         }
     },
     {path: '/not-found', component: NotFoundView, name: 'not-found'},
+    {path: '/discharge/:jwt', beforeEnter: dischargeHandler, component: DischargeForm, name: 'discharge'},
     {path: '/tequila', beforeEnter: tequilaResponseHandler},
     {
         path: '/registration', component: RegistrationView, name: 'registration', beforeEnter: (from, to, next) => {

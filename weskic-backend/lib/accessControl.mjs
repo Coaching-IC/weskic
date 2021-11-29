@@ -21,16 +21,15 @@ let authorizeEveryone = false;
 let authorizedUnits = []; // holds a cache of all units previously authorized by checkUnit
 
 const checkAuthentication = function (req, res, next) {
-    const bearerToken = req.headers['authorization'];
+    const bearerToken = req.params.jwt || req.headers['authorization'];
     if (typeof bearerToken !== 'undefined') {
-        const tokenString = bearerToken.split(' ')[1];
+        const tokenString = bearerToken.startsWith('Bearer') ? bearerToken.split(' ')[1] : bearerToken;
         jwt.verify(tokenString, JWT_KEY, (err, jwtData) => {
             if (err) {
                 logger.error(`JWT Verification failed : ${err}, IP: ${req.ip}`);
                 return res.sendStatus(403);
             }
             req.jwtData = jwtData;
-            req.userData = userData.getUserDataFromCache(jwtData.sciper);
             checkUnit(req, res, next);
         });
     } else {
@@ -101,7 +100,7 @@ const checkRole = function (req, res, next) {
 const createJWT = function (tequilaObject) {
     return jwt.sign({
         sciper: tequilaObject.uniqueid,
-        displayName: tequilaObject.displayname,
+        tequilaName: tequilaObject.displayname,
         units: tequilaObject.allunits.split(','),
     }, JWT_KEY);
 }

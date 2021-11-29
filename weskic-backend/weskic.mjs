@@ -45,6 +45,7 @@ app.use(morgan(':method :url :status :res[content-length] - :response-time ms', 
 
 app.use(accessControl.accessControlRouter);
 app.use('/api/reg/', accessControl.checkAuthentication, registration.registrationRouter);
+app.use('/api/reg-jwt/:jwt/', accessControl.checkAuthentication, registration.registrationRouter);
 
 /* ------------ MANAGEMENT ---------- */
 
@@ -74,6 +75,15 @@ app.get('/api/mgt/:mgtKey/update', checkManagementKey, (req, res) => {
 
 app.get('/api/mgt/:mgtKey/userData/:sciper', checkManagementKey, (req, res) => {
    res.send(JSON.stringify(userData.getUserDataFromCache(req.params.sciper), null, ' '));
+});
+
+app.get('/api/mgt/:mgtKey/listFiles', checkManagementKey, (req, res) => {
+    res.send(JSON.stringify(fs.readdirSync('data/user-files'), null, ' '));
+});
+
+app.get('/api/mgt/:mgtKey/userFiles/:sciper/:type/:originalName', checkManagementKey, (req,res) => {
+    userData.loadEncryptedUserFile(req.params.sciper, req.params.type, req.params.originalName)
+        .then(file => res.send(file));
 });
 
 /* ------------ EXPRESS ---------- */

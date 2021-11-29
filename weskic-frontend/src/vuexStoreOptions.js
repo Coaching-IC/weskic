@@ -1,4 +1,4 @@
-import {ToastProgrammatic as Toast, DialogProgrammatic} from "buefy";
+import {ToastProgrammatic as Toast} from "buefy";
 
 function post(state, url, data) {
     return new Promise((resolve, reject) => {
@@ -17,36 +17,31 @@ function post(state, url, data) {
     });
 }
 
-// function uploadDocument(state, url, data) {
-//     return new Promise((resolve, reject) => {
-//         const formData = new FormData();
-//         for(const name in data) {
-//             formData.append(name, data[name]);
-//         }
-//         fetch(url, {
-//             method: 'POST',
-//             headers: {
-//                 Authorization: 'Bearer ' + state.jwt
-//             },
-//             body: formData,
-//         }).then(r => {
-//             if (r.ok) {
-//                 resolve(r.json())
-//             } else reject('Bad status code');
-//         }).catch(reject);
-//     });
-// }
+function uploadDocument(state, url, data) {
+    return new Promise((resolve, reject) => {
+        const formData = new FormData();
+        for(const name in data) {
+            formData.append(name, data[name]);
+        }
+        fetch(url, {
+            method: 'POST',
+            headers: {
+                Authorization: 'Bearer ' + state.jwt
+            },
+            body: formData,
+        }).then(r => {
+            if (r.ok) {
+                resolve(r.json())
+            } else reject('Bad status code');
+        }).catch(reject);
+    });
+}
 
 export default {
     state: {
         jwt: localStorage.getItem('jwt') || '',
-        status: {
-            uploadingFile: false,
-            submittingLazyUpdate: false,
-            submittingUpdate: false,
-        },
         userData: JSON.parse(localStorage.getItem('userData')) || {
-            info: {
+            jwtData: {
                 sciper: '',
                 units: [],
                 tequilaName: '',
@@ -56,46 +51,41 @@ export default {
                 validated: false,
                 reviewed: false,
                 remarks: '',
-                adminRemarks: '',
-                identity: {
-                    officialName: '',
-                    sex: '',
-                    firstname: '',
-                    emergencyPhone: '',
-                    emergencyContact: '',
-                    idCard: {
-                        fileId: '',
-                        date: '',
-                        fileName: '',
-                        fileSize: 0,
-                    },
+
+                identity_officialName: '',
+                identity_sex: '',
+                identity_firstname: '',
+                identity_emergencyPhone: '',
+                identity_emergencyContact: '',
+                identity_idCard: {
+                    date: '',
+                    fileName: '',
+                    fileSize: 0,
                 },
-                constraints: {
-                    diets: [],
-                    foodAllergy: '',
-                    drugsAllergy: '',
+
+                constraints_diets: [],
+                constraints_foodAllergy: '',
+                constraints_drugsAllergy: '',
+
+                activities_options: [],
+                activities_skiLevel: '',
+                activities_insuranceCard: {
+                    date: '',
+                    fileName: '',
+                    fileSize: 0,
                 },
-                activities: {
-                    options: [],
-                    skiLevel: '',
-                    insuranceCard: {
-                        fileId: '',
-                        date: '',
-                        fileName: '',
-                        fileSize: 0,
-                    },
-                },
-                dischargeTelegram: {
-                    discharge: {
-                        fileId: '',
-                        date: '',
-                    },
-                    telegram: {
-                        username: '',
-                        hasJoined: false
-                    }
-                },
-            }
+
+                discharge_date: '',
+                telegram: {
+                    username: '',
+                    hasJoined: false,
+                }
+            },
+            step2: {
+                available: false,
+            },
+            step3: {},
+            step4: {},
         },
     },
 
@@ -106,6 +96,9 @@ export default {
             localStorage.setItem('jwt', jwt);
             localStorage.setItem('userData', JSON.stringify(userData));
         },
+        partialLogin(state, {jwt}) {
+            state.jwt = jwt;
+        },
         logout(state) {
             state.jwt = '';
             state.userData = {};
@@ -114,15 +107,9 @@ export default {
         setUserData(state, userData) {
             state.userData = userData;
         },
-        setStatus(state, {statusKey, newStatus}) {
-            state.status[statusKey] = newStatus;
-        },
         setTelegramUsernameStatus(state, {username, hasJoined}) {
-            state.userData.step1 = state.userData.step1 || {};
-            state.userData.step1.dischargeTelegram = state.userData.step1.dischargeTelegram || {};
-            state.userData.step1.dischargeTelegram.telegram = state.userData.step1.dischargeTelegram.telegram || {};
-            state.userData.step1.dischargeTelegram.telegram.username = username;
-            state.userData.step1.dischargeTelegram.telegram.hasJoined = hasJoined;
+            state.userData.step1.telegram.username = username;
+            state.userData.step1.telegram.hasJoined = hasJoined;
         }
     },
 
@@ -145,6 +132,13 @@ export default {
         checkTelegramUsername({commit, state}, {telegramUsername}) {
             return post(state, '/api/reg/checkTelegramUsername', {telegramUsername}).then(response => {
                 commit('setTelegramUsernameStatus', {username: telegramUsername, hasJoined: response.success});
+                if (!response.success) {
+                    Toast.open({
+                        message: `@${telegramUsername} non trouvé sur WESKIC Information`,
+                        type: 'is-danger',
+                        position: 'is-top',
+                    });
+                }
                 return {username: telegramUsername.replace('@',''), hasJoined: response.success};
             }).catch(err => console.error('Failed to update telegram username status', err));
         },
@@ -161,30 +155,37 @@ export default {
         },
 
         editUserData({commit,state}, {userData, lazy}) {
-            commit('setStatus', {statusKey: 'submittingLazyUpdate', newStatus: true})
-            post(state, '/api/reg/updateUserData', {userData, lazy}).then(response => {
-                if (response.success) commit('setUserData', userData);
-                else {
-                    const message = `Le formulaire a été refusé à cause des erreurs suivantes :<br>${response.errors.join('<br>')}`;
-                    if (lazy) {
-                        console.error(message);
-                    } else {
-                        DialogProgrammatic.alert({
-                            title: 'Formulaire refusé',
-                            message,
-                            type: 'is-danger',
-                            hasIcon: true,
-                            icon: 'times-circle',
-                            iconPack: 'fa',
-                            ariaRole: 'alertdialog',
-                            ariaModal: true
-                        });
-                    }
+            return post(state, '/api/reg/updateUserData', {userData, lazy}).then(response => {
+                if (response.success) {
+                    console.log(response);
+                    commit('setUserData', response.userData);
+                    return response;
+                } else {
+                    console.error('Failed to update user data', response);
                 }
             }).catch(err => {
                 console.error('Failed to update user data: ', err);
-            }).finally(() => {
-                commit('setStatus', {statusKey: 'submittingLazyUpdate', newStatus: false})
+            });
+        },
+
+        uploadDocument({state}, {type, file}) {
+            return uploadDocument(state, '/api/reg/uploadDocument', {type, file}).then(response => {
+                console.log(response);
+                return response;
+            }).catch(err => console.error('Failed to upload document', err));
+        },
+
+        generateSignatureQRCode({state}) {
+            return post(state, '/api/reg/signing-qrcode', {url: window.location.origin + '/discharge/' + state.jwt});
+        },
+
+        generateDischarge({state/*, commit*/}, {signature, lastname, firstname, place}) {
+            return post(state, '/api/reg/generate-discharge', {signature, lastname, firstname, place}).then(response => {
+                if (response.success) {
+                    console.log(response);
+                } else {
+                    console.error('Failed to generate dischage', response);
+                }
             });
         }
     }

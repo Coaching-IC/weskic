@@ -13,36 +13,36 @@
       <div class="column">
         <b-tag class="marginBottom10">Tous les champs de cette section sont requis</b-tag>
         <b-field label="Nom officiel">
-          <b-input disabled v-model="officialName" @input="triggerSaveTimeoutFor('identity')"></b-input>
+          <b-input disabled v-model="ud.step1.identity_officialName" @input="lazySaveTrigger"></b-input>
         </b-field>
         <b-field message="Utilisé pour l'assignation des chambres">
           <p style="margin-right:10px;">Je suis</p>
-          <b-radio v-model="sex" @input="triggerSaveTimeoutFor('identity')"
+          <b-radio v-model="ud.step1.identity_sex" @input="lazySaveTrigger"
                    name="male"
                    native-value="male">
             un homme
           </b-radio>
-          <b-radio v-model="sex" @input="triggerSaveTimeoutFor('identity')"
+          <b-radio v-model="ud.step1.identity_sex" @input="lazySaveTrigger"
                    name="female"
                    native-value="female">
             une femme
           </b-radio>
         </b-field>
         <b-field label="Prénom d'usage">
-          <b-input v-model="firstname" @input="triggerSaveTimeoutFor('identity')"></b-input>
+          <b-input v-model="ud.step1.identity_firstname" @input="lazySaveTrigger"></b-input>
         </b-field>
       </div>
       <div class="column">
         <b-field label="Numéro d'urgence (avec indicatif !)">
-          <b-input v-model="emergencyPhone" @input="triggerSaveTimeoutFor('identity')"></b-input>
+          <b-input v-model="ud.step1.identity_emergencyPhone" @input="lazySaveTrigger"></b-input>
         </b-field>
         <b-field label="Nom et adresse du contact d'urgence">
           <b-input type="textarea" placeholder="Prénom, nom, adresse postale et pays"
-                   v-model="emergencyContact" @input="triggerSaveTimeoutFor('identity')"></b-input>
+                   v-model="ud.step1.identity_emergencyContact" @input="lazySaveTrigger"></b-input>
         </b-field>
       </div>
       <div class="column">
-        <UploadFileForm field-label="Pièce d'identité" v-model="idCard" @input="triggerSaveTimeoutFor('identity')">
+        <UploadFileForm field-label="Pièce d'identité" v-model="ud.step1.identity_idCard" file-type="identity_idCard">
           <p>Cliquez ou déposez ici votre <strong>pièce d'identité</strong></p>
         </UploadFileForm>
       </div>
@@ -57,24 +57,24 @@
       <div class="column">
         <b-field label="Contraintes alimentaires">
           <div class="is-flex is-flex-direction-column is-justify-content-space-between">
-            <b-checkbox v-model="diets" native-value="vegetarian" class="marginBottom10"
-                        @input="triggerSaveTimeoutFor('constraints')">
+            <b-checkbox v-model="ud.step1.constraints_diets" native-value="vegetarian" class="marginBottom10"
+                        @input="lazySaveTrigger">
               Végétarien
             </b-checkbox>
-            <b-checkbox v-model="diets" native-value="gluten-free" class="marginBottom10"
-                        @input="triggerSaveTimeoutFor('constraints')">
+            <b-checkbox v-model="ud.step1.constraints_diets" native-value="gluten-free" class="marginBottom10"
+                        @input="lazySaveTrigger">
               Sans-gluten
             </b-checkbox>
-            <b-checkbox v-model="diets" native-value="pork-free" class="marginBottom10"
-                        @input="triggerSaveTimeoutFor('constraints')">
+            <b-checkbox v-model="ud.step1.constraints_diets" native-value="pork-free" class="marginBottom10"
+                        @input="lazySaveTrigger">
               Sans-porc
             </b-checkbox>
-            <b-checkbox v-model="diets" native-value="no-cheese" class="marginBottom10"
-                        @input="triggerSaveTimeoutFor('constraints')">
+            <b-checkbox v-model="ud.step1.constraints_diets" native-value="no-cheese" class="marginBottom10"
+                        @input="lazySaveTrigger">
               N'aime pas le fromage
             </b-checkbox>
-            <b-checkbox v-model="diets" native-value="no-alcohol" class="marginBottom10"
-                        @input="triggerSaveTimeoutFor('constraints')">
+            <b-checkbox v-model="ud.step1.constraints_diets" native-value="no-alcohol" class="marginBottom10"
+                        @input="lazySaveTrigger">
               Pas d'alcools
             </b-checkbox>
           </div>
@@ -82,12 +82,12 @@
       </div>
       <div class="column">
         <b-field label="Allergies alimentaires">
-          <b-input type="textarea" v-model="foodAllergy" @input="triggerSaveTimeoutFor('constraints')"></b-input>
+          <b-input type="textarea" v-model="ud.step1.constraints_foodAllergy" @input="lazySaveTrigger"></b-input>
         </b-field>
       </div>
       <div class="column">
         <b-field label="Allergies médicamenteuses">
-          <b-input type="textarea" v-model="drugsAllergy" @input="triggerSaveTimeoutFor('constraints')"></b-input>
+          <b-input type="textarea" v-model="ud.step1.constraints_drugsAllergy" @input="lazySaveTrigger"></b-input>
         </b-field>
       </div>
     </div>
@@ -104,40 +104,44 @@
       <div class="column">
         <b-field label="Options : forfait et cours">
           <div class="is-flex is-flex-direction-column is-justify-content-space-between">
-            <b-checkbox v-model="options" native-value="course" class="marginBottom10"
-                        @input="triggerSaveTimeoutFor('activities')">
+            <b-checkbox v-model="ud.step1.activities_options" native-value="course" class="marginBottom10"
+                        @input="lazySaveTrigger">
               Cours de ski (pas de snow) - Gratuit !
             </b-checkbox>
-            <b-checkbox v-model="options" native-value="friday" class="marginBottom10"
-                        @input="triggerSaveTimeoutFor('activities')">
+            <b-checkbox v-model="ud.step1.activities_options" native-value="friday" class="marginBottom10"
+                        @input="lazySaveTrigger">
               Forfait pour Vendredi 11 - 26.00 CHF (1)
             </b-checkbox>
-            <b-checkbox v-model="options" native-value="saturday" class="marginBottom10"
-                        @input="triggerSaveTimeoutFor('activities')">
+            <b-checkbox v-model="ud.step1.activities_options" native-value="saturday" class="marginBottom10"
+                        @input="lazySaveTrigger">
               Forfait pour Samedi 12 (2)
             </b-checkbox>
-            <b-checkbox v-model="options" native-value="sunday" class="marginBottom10"
-                        @input="triggerSaveTimeoutFor('activities')">
+            <b-checkbox v-model="ud.step1.activities_options" native-value="sunday" class="marginBottom10"
+                        @input="lazySaveTrigger">
               Forfait pour Dimanche 13 (2)
             </b-checkbox>
           </div>
         </b-field>
         <b-field label="Niveau de ski" message="À titre indicatif uniquement. Vous skiez avec qui vous voulez.">
           <div class="is-flex is-flex-direction-column">
-            <b-radio v-model="skiLevel" name="first-time" native-value="first-time" class="marginBottom10"
-                     @input="triggerSaveTimeoutFor('activities')">
+            <b-radio v-model="ud.step1.activities_skiLevel" name="first-time" native-value="first-time"
+                     class="marginBottom10"
+                     @input="lazySaveTrigger">
               Première fois
             </b-radio>
-            <b-radio v-model="skiLevel" name="beginner" native-value="beginner" class="marginBottom10"
-                     @input="triggerSaveTimeoutFor('activities')">
+            <b-radio v-model="ud.step1.activities_skiLevel" name="beginner" native-value="beginner"
+                     class="marginBottom10"
+                     @input="lazySaveTrigger">
               Débutant
             </b-radio>
-            <b-radio v-model="skiLevel" name="intermediate" native-value="intermediate" class="marginBottom10"
-                     @input="triggerSaveTimeoutFor('activities')">
+            <b-radio v-model="ud.step1.activities_skiLevel" name="intermediate" native-value="intermediate"
+                     class="marginBottom10"
+                     @input="lazySaveTrigger">
               Intermédiaire
             </b-radio>
-            <b-radio v-model="skiLevel" name="excellent" native-value="excellent" class="marginBottom10"
-                     @input="triggerSaveTimeoutFor('activities')">
+            <b-radio v-model="ud.step1.activities_skiLevel" name="excellent" native-value="excellent"
+                     class="marginBottom10"
+                     @input="lazySaveTrigger">
               Excellent
             </b-radio>
           </div>
@@ -159,8 +163,8 @@
         </ul>
       </div>
       <div class="column">
-        <UploadFileForm field-label="Carte d'assurance" v-model="insuranceCard"
-                        @input="triggerSaveTimeoutFor('activities')">
+        <UploadFileForm field-label="Carte d'assurance" v-model="ud.step1.activities_insuranceCard"
+                        file-type="activities_insuranceCard">
           <p>Cliquez ou déposez ici votre <strong>carte d'assurance</strong></p>
         </UploadFileForm>
       </div>
@@ -177,7 +181,7 @@
 
       <div class="column">
         <b-field label="Signature décharge">
-          <div class="">
+          <div v-if="!ud.step1.discharge_date">
             <b-button type="is-info" expanded tag="a" @click="openModalSignatureComponent" class="marginBottom10">
               Cet écran est tactile
             </b-button>
@@ -185,6 +189,9 @@
             </b-button>
             <br>
             <p>Choisissez une des deux options ci-dessus en fonction de votre appareil.</p>
+          </div>
+          <div v-else>
+            <p>Décharge signée le {{dischargeDisplayDate}}</p>
           </div>
         </b-field>
 
@@ -195,39 +202,55 @@
         <b-modal v-model="isSignatureQRCodeModalActive">
           <div class="modal-card" style="width: auto">
             <header class="modal-card-head">
-              <b-loading is-full-page :v-model="true" :can-cancel="true"></b-loading>
               <p class="modal-card-title">Signature de la décharge</p>
             </header>
             <section class="modal-card-body">
-              <b-loading :is-full-page="false" v-model="isSignatureQRCodeModalActive" :can-cancel="false"></b-loading>
-              <p>Scannez ce QRCode avec votre téléphone pour signer la décharge</p>
+              <b-loading :is-full-page="false" :active="qrcodeB64 === ''" :can-cancel="false"></b-loading>
+              <div class="columns">
+                <div class="column">
+                  <b-field label="Le PDF que vous allez signer">
+                    <b-button label="Afficher le PDF dans un nouvel onglet" tag="a" href="/charte-weskic.pdf" target="_blank"/>
+                  </b-field>
+                  <b-field label="QR Code">
+                    <p>Scannez ce QRCode avec votre téléphone pour signer la décharge. <br>
+                    Vous aurez la possibilité de faire votre signature au doigt. Le reste est rempli par un formulaire.</p>
+                  </b-field>
+                </div>
+                <div class="column">
+                  <div class="is-flex is-flex-direction-row is-justify-content-center">
+                    <img :src="qrcodeB64">
+                  </div>
+                </div>
+              </div>
             </section>
             <footer class="modal-card-foot">
               <b-button label="Annuler" @click="$emit('close')"/>
-              <b-button label="C'est fait" type="is-primary"/>
+              <b-button label="C'est fait" type="is-primary" @click="checkDischarge"/>
             </footer>
           </div>
         </b-modal>
       </div>
       <div class="column">
-        <TelegramChecker v-model="telegram" @input="triggerSaveTimeoutFor('telegramDischarge')"></TelegramChecker>
+        <TelegramChecker v-model="ud.step1.telegram"></TelegramChecker>
       </div>
     </div>
 
     <div class="box sectionBox">
-      <h2 class="subtitle">Merci de vérifier toutes les informations avant de valider l'étape</h2>
+      <h2 class="subtitle">{{ud.step1.validated ? `Cette étape est validée mais les informations peuvent toujours être modifiées` : `Merci de vérifier toutes les informations avant de valider l'étape` }}</h2>
       <br>
       <div class="columns">
         <div class="column">
           <p>Tu pourras toujours modifier les données de cette étape après validation.</p>
+          <br>
           <div class="is-flex is-justify-content-center">
-            <b-button v-if="formReady" type="is-success">Valider l'étape 1</b-button>
+            <b-button v-if="ud.step1.validated" type="is-info" @click="goToStep2">Passer à l'étape 2</b-button>
+            <b-button v-else-if="formReady" type="is-success" @click="submitStep1">Valider l'étape 1</b-button>
             <b-button v-else disabled type="is-danger">Formulaire incomplet</b-button>
           </div>
         </div>
         <div class="column">
           <b-field label="Remarque de tout ordre">
-            <b-input type="textarea" v-model="remarks" @input="triggerSaveTimeoutFor('remarks')"></b-input>
+            <b-input type="textarea" v-model="ud.step1.remarks" @input="lazySaveTrigger"></b-input>
           </b-field>
         </div>
       </div>
@@ -245,110 +268,46 @@
 import DischargeForm from '@/components/registration/DischargeForm.vue';
 import UploadFileForm from "@/components/registration/UploadFileForm";
 import TelegramChecker from "@/components/registration/TelegramChecker";
-
-function computeUserDataModifications(thisVar) {
-  let userData = {step1: {}}
-  if (thisVar.sectionsToSend.includes('identity')) {
-    userData.step1.identity = {
-      sex: thisVar.sex,
-      firstname: thisVar.firstname,
-      emergencyPhone: thisVar.emergencyPhone,
-      emergencyContact: thisVar.emergencyContact,
-    }
-  }
-  if (thisVar.sectionsToSend.includes('constraints')) {
-    userData.step1.constraints = {
-      diets: thisVar.diets,
-      foodAllergy: thisVar.foodAllergy,
-      drugsAllergy: thisVar.drugsAllergy,
-    }
-  }
-  if (thisVar.sectionsToSend.includes('activities')) {
-    userData.step1.activities = {
-      options: thisVar.options,
-      skiLevel: thisVar.skiLevel,
-    }
-  }
-  if (thisVar.sectionsToSend.includes('remarks')) {
-    userData.step1.remarks = thisVar.remarks;
-  }
-  return userData;
-}
+import {mapState} from "vuex";
+import {DialogProgrammatic as Dialog} from 'buefy';
 
 export default {
   name: 'PersonalInfo',
   components: {TelegramChecker, UploadFileForm, DischargeForm},
   data: () => ({
-    officialName: '',
-    sex: '',
-    firstname: '',
-    emergencyPhone: '',
-    emergencyContact: '',
-    idCard: {
-      fileId: '',
-      date: '',
-      fileName: '',
-      fileSize: 0,
-    },
-
-    diets: [],
-    foodAllergy: '',
-    drugsAllergy: '',
-
-    options: [],
-    skiLevel: '',
-    insuranceCard: {
-      fileId: '',
-      date: '',
-      fileName: '',
-      fileSize: 0,
-    },
-
-    discharge: {
-      fileId: '',
-      date: '',
-    },
-    telegram: {
-      username: '',
-      hasJoined: false
-    },
-
-    remarks: '',
-
     isSignatureComponentModalActive: false,
     isSignatureQRCodeModalActive: false,
-    identityMessage: '',
+
+    identityMessage: 'Complet',
     constraintsMessage: 'Complet',
-    activitiesMessage: '',
-    dischargeTelegramMessage: '',
-    sectionsToSend: [],
+    activitiesMessage: 'Complet',
+    dischargeTelegramMessage: 'Complet',
+
     saveTimeout: {},
+    qrcodeB64: ''
   }),
-  mounted() {
-    this.$store.dispatch('pullUserData').then(() => {
-      this.officialName = this.$store.state.userData.info.tequilaName;
-      if (this.$store.state.userData.step1) {
-        if (this.$store.state.userData.step1.identity && this.$store.state.userData.step1.identity.firstname)
-          this.firstname = this.$store.state.userData.step1.identity.firstname;
-        else this.firstname = this.officialName.split(' ')[0];
-        if (this.$store.state.userData.step1.dischargeTelegram && this.$store.state.userData.step1.dischargeTelegram.telegram)
-          this.telegram = this.$store.state.userData.step1.dischargeTelegram.telegram;
-      }
-    });
-  },
   computed: {
     identityComplete() {
-      return this.sex.length > 0 && this.firstname.length > 0 && this.emergencyPhone.length > 0 && this.emergencyContact.length > 0 && this.idCard.fileId.length > 0;
+      return this.ud.step1.identity_sex.length > 0 && this.ud.step1.identity_firstname.length > 0
+          && this.ud.step1.identity_emergencyPhone.length > 0 && this.ud.step1.identity_emergencyContact.length > 0
+          && this.ud.step1.identity_idCard.date.length > 0;
     },
     activitiesComplete() {
-      return this.skiLevel.length > 0 && this.insuranceCard.fileId.length > 0;
+      return this.ud.step1.activities_skiLevel.length > 0 && this.ud.step1.activities_insuranceCard.date.length > 0;
     },
     dischargeTelegramComplete() {
-      return false;
+      return this.ud.step1.discharge_date.length > 0;
     },
     formReady() {
       return this.identityComplete && this.activitiesComplete && this.dischargeTelegramComplete;
     },
+    ...mapState({
+      ud: state => state.userData,
+      dischargeDisplayDate: state => {
+        const date = new Date(state.userData.step1.discharge_date);
+        return date.toLocaleString();
+      }
+    })
   },
   props: {},
   methods: {
@@ -357,21 +316,52 @@ export default {
     },
     openModalSignatureQRCode() {
       this.isSignatureQRCodeModalActive = true;
+
+      this.$store.dispatch('generateSignatureQRCode').then(res => {
+        this.qrcodeB64 = res.url;
+      });
+
     },
-    triggerSaveTimeoutFor(sectionName) {
+    lazySaveTrigger() {
       if (this.saveTimeout) clearTimeout(this.saveTimeout);
-      if (!this.sectionsToSend.includes(sectionName)) this.sectionsToSend.push(sectionName);
       this.saveTimeout = setTimeout(this.lazySave, 2000);
     },
     lazySave() {
-      let userData = computeUserDataModifications(this);
-      this.sectionsToSend = [];
+      let userData = this.$store.state.userData;
       console.log(userData);
       this.$store.dispatch('editUserData', {userData, lazy: true});
     },
     syncSave() {
       if (this.saveTimeout) clearTimeout(this.saveTimeout);
-      // this.$store.dispatch('editUserData', {userData, lazy: false});
+      this.$store.dispatch('editUserData', {userData: this.$store.state.userData, lazy: false}).then(response => {
+        if (response.missingFields.length > 0) {
+          const message = 'Le formulaire a été refusé car ils manquent ces champs obligatoires : ' + response.missingFields.join(', ');
+          Dialog.alert({
+            title: 'Formulaire refusé',
+            message,
+            type: 'is-danger',
+            hasIcon: true,
+            icon: 'times-circle',
+            iconPack: 'fa',
+            ariaRole: 'alertdialog',
+            ariaModal: true
+          });
+        }
+      });
+
+
+    },
+    checkDischarge() {
+      this.$store.dispatch('pullUserData').then(userData => {
+        if (userData.step1.discharge_date)
+          this.isSignatureQRCodeModalActive = false;
+      });
+    },
+    submitStep1() {
+      this.syncSave();
+    },
+    goToStep2() {
+      this.$emit('next');
     }
   }
 }

@@ -11,6 +11,7 @@
     "buefy": "^0.9.11",
     "core-js": "^3.6.5",
     "sass-loader": "^10",
+    "signature_pad": "^4.0.0",
     "style-loader": "^3.3.0",
     "validator": "^13.7.0",
     "vue": "^2.6.11",

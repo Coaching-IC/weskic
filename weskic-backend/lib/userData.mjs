@@ -9,6 +9,7 @@ let userDataCache = {}; // key: sciper
 let dataToSave = false;
 
 fsE.ensureDirSync('data/user-data');
+fsE.ensureDirSync('data/user-files');
 
 function loadEncryptedData() {
     const scipers = fs.readdirSync('data/user-data').filter(val => val.endsWith('.aes')).map(s => s.slice(5, 11));
@@ -76,7 +77,46 @@ function createUserData(tequilaAttributes) {
                 units: tequilaAttributes.allunits.split(','),
                 tequilaName: tequilaAttributes.displayname,
                 registrationDate: now.toISOString(),
-            }
+            },
+            step1: {
+                validated: false,
+                reviewed: false,
+                remarks: '',
+
+                identity_officialName: tequilaAttributes.displayname,
+                identity_sex: '',
+                identity_firstname: tequilaAttributes.displayname.split(' ')[0],
+                identity_emergencyPhone: '',
+                identity_emergencyContact: '',
+                identity_idCard: {
+                    date: '',
+                    fileName: '',
+                    fileSize: 0,
+                },
+
+                constraints_diets: [],
+                constraints_foodAllergy: '',
+                constraints_drugsAllergy: '',
+
+                activities_options: [],
+                activities_skiLevel: '',
+                activities_insuranceCard: {
+                    date: '',
+                    fileName: '',
+                    fileSize: 0,
+                },
+
+                discharge_date: '',
+                telegram: {
+                    username: '',
+                    hasJoined: false,
+                }
+            },
+            step2: {
+                available: false,
+            },
+            step3: {},
+            step4: {},
         };
         storeEncryptedUD(sciper).then(() => {
             logger.info(`New registration for ${sciper} - ${tequilaAttributes.displayname}`);
@@ -124,7 +164,6 @@ function checkTequilaAttributes(tequilaAttributes) {
 }
 
 function mutateUserData(sciper, ud, lazy) {
-    console.log(ud);
     return new Promise((resolve, reject) => {
         if (!userDataCache[sciper]) return reject('unknown sciper');
         mergeDeep(userDataCache[sciper], ud);
@@ -132,23 +171,14 @@ function mutateUserData(sciper, ud, lazy) {
             dataToSave = true;
             resolve(userDataCache[sciper]);
         } else {
-            saveUserData(sciper).then(resolve).catch(reject);
+            saveUserData(sciper).then(resolve(userDataCache[sciper])).catch(reject);
         }
     });
 }
 
-function storeUserFile(sciper, fileId, buffer) {
-    return new Promise((resolve, reject) => {
-
-    });
-}
-
 function updateTelegramStatus(sciper, username, hasJoined) {
-    userDataCache[sciper].step1 = userDataCache[sciper].step1 || {};
-    userDataCache[sciper].step1.dischargeTelegram = userDataCache[sciper].step1.dischargeTelegram || {};
-    userDataCache[sciper].step1.dischargeTelegram.telegram = userDataCache[sciper].step1.dischargeTelegram.telegram || {};
-    userDataCache[sciper].step1.dischargeTelegram.telegram.username = username;
-    userDataCache[sciper].step1.dischargeTelegram.telegram.hasJoined = hasJoined;
+    userDataCache[sciper].step1.telegram.username = username;
+    userDataCache[sciper].step1.telegram.hasJoined = hasJoined;
     dataToSave = true;
 }
 
@@ -156,9 +186,66 @@ function getUserDataFromCache(sciper) {
     return userDataCache[sciper];
 }
 
+function storeEncryptedUserFile(sciper, type, originalName, buffer) {
+    return new BPromise((resolve, reject) => {
+        let iv = crypto.randomBytes(16);
+        const cipher = crypto.createCipheriv('aes-256-gcm', key, iv);
+        const encrypted = Buffer.concat([cipher.update(buffer), cipher.final()])
+        const authTag = cipher.getAuthTag();
+        const output = Buffer.concat([iv, authTag, encrypted]);
+        fs.writeFile(`data/user-files/${type}-${sciper}-${originalName}.aes`, output, err => {
+            if (err) reject(err);
+            else {
+                const now = new Date;
+                const fileMeta = {
+                    date: now.toISOString(),
+                    fileSize: buffer.length,
+                    fileName: originalName
+                }
+                if (type === 'identity_idCard') {
+                    userDataCache[sciper].step1.identity_idCard = fileMeta;
+                } else if (type === 'activities_insuranceCard') {
+                    userDataCache[sciper].step1.activities_insuranceCard = fileMeta;
+                }
+                resolve(fileMeta);
+            }
+        });
+    });
+}
+
+function loadEncryptedUserFile(sciper, type, originalName) {
+    return new BPromise((resolve, reject) => {
+        fs.readFile(`data/user-files/${type}-${sciper}-${originalName}.aes`, (err, all_data) => {
+            if (err) return reject(err);
+            if (!all_data) return reject('not found');
+            const iv = all_data.slice(0, 16);
+            const authTag = all_data.slice(16, 32);
+            const encrypted = all_data.slice(32);
+            const decipher = crypto.createDecipheriv('aes-256-gcm', key, iv);
+            decipher.setAuthTag(authTag);
+            let decrypted = Buffer.concat([decipher.update(encrypted), decipher.final()]);
+            resolve(decrypted);
+        });
+    });
+}
+
+function dischargeSigned(sciper, dateObject) {
+    userDataCache[sciper].step1.discharge_date = dateObject.toISOString();
+}
+
+function setStep1Validated(sciper, validated) {
+    userDataCache[sciper].step1.validated = validated;
+    userDataCache[sciper].step2.available = validated;
+}
+
+function setStep1Reviewed(sciper, reviewed) {
+    userDataCache[sciper].step1.reviewed = reviewed;
+}
+
 export default {
     init, beforeExit, checkTequilaAttributes, mutateUserData, updateTelegramStatus,
-    getUserDataFromCache
+    getUserDataFromCache, storeEncryptedUserFile, loadEncryptedUserFile, dischargeSigned,
+    setStep1Validated, setStep1Reviewed,
 };
 
 /* ---------- HELPERS ---------- */
