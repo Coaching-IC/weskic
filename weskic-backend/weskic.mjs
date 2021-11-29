@@ -1,10 +1,12 @@
 import dotenv from 'dotenv';
+
 dotenv.config();
 import express from 'express';
 import morgan from 'morgan';
 import {fileURLToPath} from 'url';
 import {dirname} from 'path';
 import * as fs from "fs";
+import {body, validationResult} from 'express-validator';
 
 const PORT = process.env.PORT;
 const UNITS_RULES = process.env.UNITS_RULES.split(' ');
@@ -17,6 +19,7 @@ import {getLogger, getAccessLogger} from './lib/logger.mjs';
 import userData from './lib/userData.mjs';
 import accessControl from './lib/accessControl.mjs';
 import registration from './lib/registration.mjs';
+import mailService from "./lib/mailService.mjs";
 
 const DIRNAME = dirname(fileURLToPath(import.meta.url));
 const PROD = process.env.NODE_ENV.toLowerCase() === 'production';
@@ -26,6 +29,14 @@ const accessLogger = getAccessLogger(PROD);
 const accessLoggerStream = {
     write: function (message) {
         accessLogger.info(message);
+    }
+}
+
+const userDataReady = (req, res, next) => {
+    if (userData.getUserDataFromCache(req.jwtData.sciper)) next();
+    else {
+        logger.error(`User data not ready for user ${req.jwtData.sciper} !`);
+        res.status(400).json({error: 'no user data'});
     }
 }
 
@@ -44,8 +55,25 @@ app.use(morgan(':method :url :status :res[content-length] - :response-time ms', 
 }));
 
 app.use(accessControl.accessControlRouter);
-app.use('/api/reg/', accessControl.checkAuthentication, registration.registrationRouter);
-app.use('/api/reg-jwt/:jwt/', accessControl.checkAuthentication, registration.registrationRouter);
+app.use('/api/reg/', accessControl.checkAuthentication, userDataReady, registration.registrationRouter);
+app.use('/api/reg-jwt/:jwt/', accessControl.checkAuthentication, userDataReady, registration.registrationRouter);
+
+/* ------------ UTILITIES ---------- */
+app.post('/api/help-form', accessControl.checkAuthentication, body('type').isIn(['it', 'anim', 'admin', 'report']),
+    body('subject'), body('message'), (req, res) => {
+        const bodyErrors = validationResult(req);
+        if (!bodyErrors.isEmpty()) {
+            return res.status(400).json({
+                errors: ['Body error, contact administrator'],
+                bodyErrors: bodyErrors.array()
+            });
+        }
+        mailService.sendHelpForm(req.jwtData.sciper, req.jwtData.tequilaName, req.jwtData.units, req.body.type, req.body.subject, req.body.message).then(() => {
+            res.send({success: true});
+        }).catch(() => {
+            res.send({success: false});
+        });
+    });
 
 /* ------------ MANAGEMENT ---------- */
 
@@ -74,14 +102,14 @@ app.get('/api/mgt/:mgtKey/update', checkManagementKey, (req, res) => {
 });
 
 app.get('/api/mgt/:mgtKey/userData/:sciper', checkManagementKey, (req, res) => {
-   res.send(JSON.stringify(userData.getUserDataFromCache(req.params.sciper), null, ' '));
+    res.send(JSON.stringify(userData.getUserDataFromCache(req.params.sciper), null, ' '));
 });
 
 app.get('/api/mgt/:mgtKey/listFiles', checkManagementKey, (req, res) => {
     res.send(JSON.stringify(fs.readdirSync('data/user-files'), null, ' '));
 });
 
-app.get('/api/mgt/:mgtKey/userFiles/:sciper/:type/:originalName', checkManagementKey, (req,res) => {
+app.get('/api/mgt/:mgtKey/userFiles/:sciper/:type/:originalName', checkManagementKey, (req, res) => {
     userData.loadEncryptedUserFile(req.params.sciper, req.params.type, req.params.originalName)
         .then(file => res.send(file));
 });

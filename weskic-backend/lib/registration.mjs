@@ -62,8 +62,8 @@ function step1UpdateParser(step1) {
     let step1copy = {};
     let missingFields = [];
 
-    const isArrayASubsetOf = (array, subset) => array && !isNaN(array.length) && array.length > 0
-        && array.reduce((acc, val) => acc && subset.includes(val));
+    const isArrayASubsetOf = (array, subset) => array && !isNaN(array.length) && array.length === 0
+        || array.reduce((acc, val) => acc && subset.includes(val));
 
     // Identity
     if (step1.identity_sex && Validator.isIn(step1.identity_sex, ['male', 'female']))
@@ -135,8 +135,6 @@ registrationRouter.post('/updateUserData', body('userData').isObject(), body('la
                 userData.setStep1Validated(req.jwtData.sciper, true);
                 logger.info(`[REG] User ${req.jwtData.sciper} validated STEP 1`);
             } else userData.setStep1Validated(req.jwtData.sciper, false);
-
-            console.log('newUserData:',newUserData);
             res.send({success: true, userData: newUserData, missingFields});
         }).catch(err => {
             logger.error(err);
@@ -200,9 +198,7 @@ registrationRouter.get('/my-discharge.pdf', (req, res) => {
     const userFilesPath = resolve('data/user-files');
     const fileName = 'discharge-'+req.jwtData.sciper+'.pdf';
     const filePath = join(userFilesPath, fileName);
-    console.log(filePath);
-    res.sendFile(filePath);
-    //TODO FIX
+    res.sendFile(fileName, {root: userFilesPath});
 });
 
 

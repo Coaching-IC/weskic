@@ -31,7 +31,7 @@
     </InfoQuestion>
 
     <InfoQuestion class="question" question="Comment signaler un problème, une plainte, ou émettre une demande pendant ou avant le WESKIC ?">
-      <p>Nous avons ajouté un formulaire d'aide destiné aux participants. Une fois connecté vous avez accès
+      <p>Nous avons ajouté un <a href="/help" target="_blank">formulaire d'aide destiné aux participants</a>. Une fois connecté vous avez accès
         à un bouton "J'ai besoin d'aide". Ce formulaire permet d'envoyer votre requête à la bonne personne.
         <br>Seul le comité du Coaching pourra voir ces messages. Si vous souhaitez davantage de discretion vous pouvez
         également contacter directement les 2 Supercoachs :

@@ -33,7 +33,11 @@
         </b-field>
       </div>
       <div class="column">
-        <b-field label="Numéro d'urgence (avec indicatif !)">
+        <b-field label="Numéro d'urgence (avec indicatif !)"
+                 :message="ud.step1.identity_emergencyPhone.indexOf(' ')!==-1 ? `Ne pas mettre d'espace` : ''"
+                 :type="(ud.step1.identity_emergencyPhone.length>0
+                 && (ud.step1.identity_emergencyPhone.indexOf(' ')!==-1
+                 || !ud.step1.identity_emergencyPhone.startsWith('+'))) ? `is-danger` : ''">
           <b-input v-model="ud.step1.identity_emergencyPhone" @input="lazySaveTrigger"></b-input>
         </b-field>
         <b-field label="Nom et adresse du contact d'urgence">
@@ -102,7 +106,7 @@
       </b-taglist>
 
       <div class="column">
-        <b-field label="Options : forfait et cours">
+        <b-field label="Options : forfait et cours" type="is-danger" :message="optionsMessage">
           <div class="is-flex is-flex-direction-column is-justify-content-space-between">
             <b-checkbox v-model="ud.step1.activities_options" native-value="course" class="marginBottom10"
                         @input="lazySaveTrigger">
@@ -196,7 +200,7 @@
         </b-field>
 
         <b-modal v-model="isSignatureComponentModalActive">
-          <DischargeForm></DischargeForm>
+          <DischargeForm @close="closeModal"></DischargeForm>
         </b-modal>
 
         <b-modal v-model="isSignatureQRCodeModalActive">
@@ -269,7 +273,7 @@ import DischargeForm from '@/components/registration/DischargeForm.vue';
 import UploadFileForm from "@/components/registration/UploadFileForm";
 import TelegramChecker from "@/components/registration/TelegramChecker";
 import {mapState} from "vuex";
-import {DialogProgrammatic as Dialog} from 'buefy';
+import {DialogProgrammatic as Dialog, ToastProgrammatic as Toast} from 'buefy';
 
 export default {
   name: 'PersonalInfo',
@@ -306,6 +310,12 @@ export default {
       dischargeDisplayDate: state => {
         const date = new Date(state.userData.step1.discharge_date);
         return date.toLocaleString();
+      },
+      optionsMessage: state => {
+        if (state.userData.step1.activities_options.includes('course') && !state.userData.step1.activities_options.includes('friday')
+            && !state.userData.step1.activities_options.includes('saturday'))
+          return 'Pour prendre des cours il faut prendre un forfait';
+        else return '';
       }
     })
   },
@@ -355,6 +365,12 @@ export default {
       this.$store.dispatch('pullUserData').then(userData => {
         if (userData.step1.discharge_date)
           this.isSignatureQRCodeModalActive = false;
+        else
+          Toast.open({
+            message: 'Décharge introuvable ... tu l\'as vraiment envoyée ?',
+            type: 'is-danger',
+            position: 'is-top',
+          });
       });
     },
     submitStep1() {
@@ -362,6 +378,10 @@ export default {
     },
     goToStep2() {
       this.$emit('next');
+    },
+    closeModal() {
+      this.isSignatureComponentModalActive = false;
+      this.isSignatureQRCodeModalActive = false;
     }
   }
 }
