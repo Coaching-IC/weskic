@@ -80,6 +80,7 @@ function createUserData(tequilaAttributes) {
             },
             step1: {
                 validated: false,
+                validatedDate: '',
                 reviewed: false,
                 remarks: '',
 
@@ -116,6 +117,13 @@ function createUserData(tequilaAttributes) {
                 available: false,
                 amountToPay: 0,
                 hasPaid: false,
+                hasPaidDate: '',
+                paymentStrategy: '',
+
+                polybanking_date: '',
+                polybanking_ref: '',
+                polybanking_url: '',
+                polybanking_ipn: {},
             },
             step3: {},
             step4: {},
@@ -232,6 +240,7 @@ function loadEncryptedUserFile(sciper, type, originalName) {
 
 function dischargeSigned(sciper, dateObject) {
     userDataCache[sciper].step1.discharge_date = dateObject.toISOString();
+    dataToSave = true;
 }
 
 function setStep1Validated(sciper, validated) {
@@ -239,26 +248,74 @@ function setStep1Validated(sciper, validated) {
     userDataCache[sciper].step2.available = validated;
 
     if (validated) {
+        const date = new Date();
+        userDataCache[sciper].step1.validatedDate = date.toISOString();
         userDataCache[sciper].step2.amountToPay = 13500;
         if (userDataCache[sciper].step1.activities_options.includes('friday'))
             userDataCache[sciper].step2.amountToPay += 2600;
     } else {
         userDataCache[sciper].step2.amountToPay = 0;
+        userDataCache[sciper].step1.validatedDate = '';
     }
+    dataToSave = true;
 }
 
 function setStep1Reviewed(sciper, reviewed) {
     userDataCache[sciper].step1.reviewed = reviewed;
+    dataToSave = true;
 }
 
 function setStep2HasPaid(sciper, hasPaid) {
+    const date = new Date();
     userDataCache[sciper].step2.hasPaid = hasPaid;
+    userDataCache[sciper].step2.hasPaidDate = date.toISOString();
+    dataToSave = true;
+}
+
+function cancelStep(sciper, step) {
+    if (step === 1) {
+        userDataCache[sciper].step1.validated = false;
+        userDataCache[sciper].step1.validatedDate = '';
+        userDataCache[sciper].step2.available = false;
+    } else if (step === 2) {
+        userDataCache[sciper].step2.hasPaid = false;
+        userDataCache[sciper].step2.hasPaidDate = '';
+    } else {
+        throw 'what is step ' + step;
+    }
+    dataToSave = true;
+}
+
+function setPolybankingRef(sciper, ref, url) {
+    const date = new Date();
+    userDataCache[sciper].step2.polybanking_date = date.toISOString();
+    userDataCache[sciper].step2.polybanking_ref = ref;
+    userDataCache[sciper].step2.polybanking_url = url;
+    userDataCache[sciper].step2.polybanking_ipn = {};
+    dataToSave = true;
+}
+
+function setPolybankingIPN(sciper, ipn) {
+    userDataCache[sciper].step2.polybanking_ipn = ipn;
+    if (parseInt(ipn['postfinance_status']) === 9 && ipn['postfinance_status_good'] === 'True') {
+        setStep2HasPaid(sciper, true);
+    } else setStep2HasPaid(sciper, false);
+    dataToSave = true;
+}
+
+function resetPolybanking(sciper) {
+    userDataCache[sciper].step2.polybanking_date = '';
+    userDataCache[sciper].step2.polybanking_ref = '';
+    userDataCache[sciper].step2.polybanking_url = '';
+    userDataCache[sciper].step2.polybanking_ipn = {};
+    dataToSave = true;
 }
 
 export default {
     init, beforeExit, checkTequilaAttributes, mutateUserData, updateTelegramStatus,
     getUserDataFromCache, storeEncryptedUserFile, loadEncryptedUserFile, dischargeSigned,
-    setStep1Validated, setStep1Reviewed, setStep2HasPaid,
+    setStep1Validated, setStep1Reviewed, setStep2HasPaid, cancelStep,
+    setPolybankingRef, resetPolybanking, setPolybankingIPN
 };
 
 /* ---------- HELPERS ---------- */

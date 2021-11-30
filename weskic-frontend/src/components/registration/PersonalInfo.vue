@@ -240,11 +240,12 @@
     </div>
 
     <div class="box sectionBox">
-      <h2 class="subtitle">{{ud.step1.validated ? `Cette étape est validée mais les informations peuvent toujours être modifiées` : `Merci de vérifier toutes les informations avant de valider l'étape` }}</h2>
+      <h2 class="subtitle">{{ud.step1.validated ? `Cette étape est validée et les informations ne peuvent plus être modifiées` : `Merci de vérifier toutes les informations avant de valider l'étape` }}</h2>
       <br>
       <div class="columns">
         <div class="column">
-          <p>Tu pourras toujours modifier les données de cette étape après validation.</p>
+          <p>Après validation ces informations ne pourront plus être modifiées. Si vous remarquez une erreur importante
+            après validation, <a href="/help" target="_blank">contactez-nous</a>.</p>
           <br>
           <div class="is-flex is-justify-content-center">
             <b-button v-if="ud.step1.validated" type="is-info" @click="goToStep2">Passer à l'étape 2</b-button>
@@ -339,7 +340,16 @@ export default {
     lazySave() {
       let userData = this.$store.state.userData;
       console.log(userData);
-      this.$store.dispatch('editUserData', {userData, lazy: true});
+      this.$store.dispatch('editUserData', {userData, lazy: true}).catch(err => {
+        if (err === 'step locked') {
+          Toast.open({
+            message: 'Vous ne pouvez plus modifier les données de cette étape',
+            type: 'is-danger',
+            position: 'is-top',
+            duration: 3000,
+          });
+        }
+      });
     },
     syncSave() {
       if (this.saveTimeout) clearTimeout(this.saveTimeout);

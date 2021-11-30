@@ -7,6 +7,7 @@ import {fileURLToPath} from 'url';
 import {dirname} from 'path';
 import * as fs from "fs";
 import {body, validationResult} from 'express-validator';
+import bodyParser from "body-parser";
 
 const PORT = process.env.PORT;
 const UNITS_RULES = process.env.UNITS_RULES.split(' ');
@@ -51,6 +52,7 @@ if (!PORT) {
 }
 const app = express();
 app.use(express.json());
+app.use(bodyParser.urlencoded({limit: '10mb', extended: true}));
 app.use(morgan(':method :url :status :res[content-length] - :response-time ms', {
     stream: accessLoggerStream
 }));
@@ -99,12 +101,19 @@ const canPay = function (sciper, ud, res) {
         res.send({success: false, error: 'not allowed to pay'});
         return false;
     }
+
+    if (ud.step2.paymentStrategy !== 'agepoly') {
+        logger.error(`[AGEP] User ${ud.info.tequilaName} #${sciper} did not select agepoly payment`);
+        res.send({success: false, error: 'agepoly not selected'});
+        return false;
+    }
+
     return true;
 }
 
 app.post('/api/agep/checkConnection', checkAgepKey, (req, res) => {
-   res.send({success: true});
-   logger.info(`[AGEP] Client checked the agepKey`);
+    res.send({success: true});
+    logger.info(`[AGEP] Client checked the agepKey`);
 });
 
 app.post('/api/agep/readUser', checkAgepKey,
@@ -148,6 +157,13 @@ app.post('/api/agep/updateUser', checkAgepKey,
         const sciper = req.body.sciper;
         const hasPaid = req.body.hasPaid;
         const ud = userData.getUserDataFromCache(sciper);
+
+        // PREVENTING PAST PAYMENTS REMOVAL // Later : only admins can
+        if (!hasPaid) {
+            res.status(403).json({error: 'cannot cancel payment'});
+            return;
+        }
+
         if (canPay(sciper, ud, res)) {
             userData.setStep2HasPaid(sciper, hasPaid);
             const userPaymentData = {
@@ -200,6 +216,18 @@ app.get('/api/mgt/:mgtKey/listFiles', checkManagementKey, (req, res) => {
 app.get('/api/mgt/:mgtKey/userFiles/:sciper/:type/:originalName', checkManagementKey, (req, res) => {
     userData.loadEncryptedUserFile(req.params.sciper, req.params.type, req.params.originalName)
         .then(file => res.send(file));
+});
+
+app.get('/api/mgt/:mgtKey/cancelStep/:step/:sciper', checkManagementKey, (req, res) => {
+    logger.info(`[MGT] cancelStep ${req.params.step} for ${req.params.sciper}`);
+    userData.cancelStep(req.params.sciper, parseInt(req.params.step));
+    res.send(JSON.stringify(userData.getUserDataFromCache(req.params.sciper), null, ' '));
+});
+
+app.get('/api/mgt/:mgtKey/resetPolybanking/:sciper', checkManagementKey, (req, res) => {
+    logger.info(`[MGT] resetPolybanking for ${req.params.sciper}`);
+    userData.resetPolybanking(req.params.sciper);
+    res.send(JSON.stringify(userData.getUserDataFromCache(req.params.sciper), null, ' '));
 });
 
 /* ------------ EXPRESS ---------- */

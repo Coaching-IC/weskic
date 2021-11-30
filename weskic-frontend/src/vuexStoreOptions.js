@@ -50,6 +50,7 @@ export default {
             },
             step1: {
                 validated: false,
+                validatedDate: '',
                 reviewed: false,
                 remarks: '',
 
@@ -86,6 +87,13 @@ export default {
                 available: false,
                 amountToPay: 0,
                 hasPaid: false,
+                hasPaidDate: '',
+                paymentStrategy: '',
+
+                polybanking_date: '',
+                polybanking_ref: '',
+                polybanking_url: '',
+                polybanking_ipn: {},
             },
             step3: {},
             step4: {},
@@ -163,14 +171,13 @@ export default {
         editUserData({commit,state}, {userData, lazy}) {
             return post(state, '/api/reg/updateUserData', {userData, lazy}).then(response => {
                 if (response.success) {
-                    console.log(response);
                     commit('setUserData', response.userData);
                     return response;
                 } else {
-                    console.error('Failed to update user data', response);
+                    return Promise.reject(response.error);
                 }
             }).catch(err => {
-                console.error('Failed to update user data: ', err);
+                return Promise.reject(err);
             });
         },
 
@@ -219,6 +226,10 @@ export default {
 
         agepUpdateUser({state}, {sciper, hasPaid}) {
             return post(state, '/api/agep/updateUser', {sciper, hasPaid, agepKey: state.agepKey});
+        },
+
+        polybankingRequest({state}) {
+            return post(state, '/api/reg/polybankingRequest', {});
         }
     }
 };

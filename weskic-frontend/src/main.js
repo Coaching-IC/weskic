@@ -15,6 +15,7 @@ import HelpView from "@/components/HelpView";
 import vuexStoreOptions from './vuexStoreOptions';
 import DischargeForm from "@/components/registration/DischargeForm";
 import AgepView from "@/components/AgepView";
+import PolybankingConfirmationView from "@/components/PolybankingConfirmationView";
 
 
 Vue.config.productionTip = false;
@@ -137,6 +138,7 @@ const routes = [
     {path: '/tequila/:requestedPage', beforeEnter: tequilaResponseHandler},
     {path: '/agep', name: 'agep', component: AgepView},
     {path: '/agep/:agepKey', beforeEnter: agepKeyHandler},
+    {path: '/polybanking/:status', component: PolybankingConfirmationView},
     {
         path: '/registration', component: RegistrationView, name: 'registration', beforeEnter: (from, to, next) => {
             if (store.state.jwt === '') next({name: 'login'}); else next();

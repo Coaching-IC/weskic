@@ -17,20 +17,24 @@
 
           <hr>
 
-          <b-button v-if="!currentUserPaymentData.hasPaid" type="is-success" expanded :disabled="!canPay || !currentUserPaymentData.sciper" @click="setHasPaid(true)">Confirmer le paiement</b-button>
-          <b-button v-else type="is-warning" expanded :disabled="!canPay || !currentUserPaymentData.sciper" @click="setHasPaid(false)">Annuler le paiement</b-button>
+          <b-button v-if="!currentUserPaymentData.hasPaid" type="is-success" expanded
+                    :disabled="!canPay || !currentUserPaymentData.sciper" @click="setHasPaid(true)">Confirmer le
+            paiement
+          </b-button>
+          <!--          <b-button v-else type="is-warning" expanded :disabled="!canPay || !currentUserPaymentData.sciper" @click="setHasPaid(false)">Annuler le paiement</b-button>-->
         </div>
 
         <div class="column">
           <div v-if="currentUserPaymentData.sciper">
             <b-notification :closable="false">
-              <h1 class="title" style="font-size: 19pt;">{{currentUserPaymentData.tequilaName}}</h1>
+              <h1 class="title" style="font-size: 19pt;">{{ currentUserPaymentData.tequilaName }}</h1>
               <b-taglist>
                 <b-tag v-for="unit in currentUserPaymentData.units" v-bind:key="unit" type="is-info">{{ unit }}</b-tag>
               </b-taglist>
               <hr>
               <b-tag class="is-large" :type="currentUserPaymentData.hasPaid ? 'is-success' : 'is-danger'">
-                Montant {{currentUserPaymentData.hasPaid ? 'payé' : 'à payer'}} : {{amount}}</b-tag>
+                Montant {{ currentUserPaymentData.hasPaid ? 'payé' : 'à payer' }} : {{ amount }}
+              </b-tag>
             </b-notification>
           </div>
           <div v-else>
@@ -101,6 +105,15 @@ export default {
               });
               break;
 
+            case 'agepoly not selected':
+              Toast.open({
+                message: `Impossible de procéder au paiement : la personne n'a pas sélectionné le paiement en boutique`,
+                type: 'is-danger',
+                position: 'is-top',
+                duration: 7000,
+              });
+              break;
+
             default:
               Toast.open({
                 message: `Erreur inconnue`,
@@ -158,7 +171,7 @@ export default {
     }
   },
   computed: {
-    amount: function() {
+    amount: function () {
       return this.currentUserPaymentData.amountToPay && (this.currentUserPaymentData.amountToPay / 100 + ' CHF');
     }
   }
