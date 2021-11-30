@@ -3,42 +3,127 @@
 
     <hr>
 
-    <b-notification :closable="false" has-icon icon="receipt">
-      <h2 class="subtitle">Montant à régler maintenant : <strong>{{price}}.00 CHF</strong><br>
-      Tu y es presque, c'est bientôt fini !</h2>
-    </b-notification>
+    <div id="amount-notif" v-if="!ud.step2.hasPaid" class="notification">
+      <div class="columns">
+        <div class="column is-2">
+          <b-icon icon="receipt" size="is-large"/>
+        </div>
+        <div class="column">
+          <h2 class="subtitle">Montant à régler maintenant : <strong>{{ price }}</strong><br>
+            Tu as 3 jours pour finaliser le paiement. <br>
+            Si tu as un problème, utilise le <a href="/help" target="_blank">formulaire</a></h2>
+        </div>
+        <div class="column is-flex is-justify-content-space-around" v-if="ud.step2.paymentStrategy">
+          <b-tag class="is-large" type="is-info">
+            {{ ud.step2.paymentStrategy === 'polybanking' ? 'Paiement en ligne' : 'Paiement boutique ' }}
+          </b-tag>
+          <b-button class="is-white" @click="setPaymentStrategy('')" v-if="!ud.step2.polybanking_ref">Changer</b-button>
+        </div>
+      </div>
+    </div>
 
-    <div class="columns">
-
+    <div id="payment-strategy-choice" v-if="!ud.step2.paymentStrategy" class="columns">
       <div class="column">
-        <h5 class="subtitle"><strong>Paiment en ligne</strong></h5>
+        <b-button expanded class="is-success" @click="setPaymentStrategy('polybanking')">Paiement en ligne
+        </b-button>
+        <br>
+        <p class="subtitle">Le plus rapide, avec une carte bancaire, PayPal, ou TWINT</p>
       </div>
-      <div class="column leftBorder">
-        <h5 class="subtitle"><strong>Paiment à la boutique AGEPoly</strong></h5>
+      <div class="column">
+        <b-button expanded class="is-success" @click="setPaymentStrategy('agepoly')">Paiement à la boutique de
+          l'AGEPoly
+        </b-button>
+        <br>
+        <p class="subtitle">Si vous voulez payer en cash, avec votre carte Camipro, ... </p>
       </div>
+    </div>
 
+    <div id="payment-agepoly" v-if="ud.step2.paymentStrategy === 'agepoly'" class="columns">
+      <h1 class="subtitle">Ta demande de payer à la boutique de l'AGEPoly a été enregistrée. Tu dois y aller avant le
+        {{ payBefore }}. Après nous ne pouvons plus garantir ta place.</h1>
+    </div>
+
+    <div id="payment-polybanking" v-if="ud.step2.paymentStrategy === 'polybanking' && !ud.step2.polybanking_ref" class="columns">
+      <div class="column is-3">
+        <b-button class="is-success" expanded @click="payOnline">Passer au paiement</b-button>
+      </div>
+      <div class="class column">
+        <h1 class="subtitle">Le service qu'on utilise pour vous proposer de payer par internet s'appelle Polybanking.
+          Quelques associations l'utilisent aussi (PolyLAN, Polyjapan, ... bref les geek quoi).
+          <br> Derrière ça utilise PostFinance E-Payments.</h1>
+        <br>
+      </div>
+    </div>
+
+    <div v-if="ud.step2.paymentStrategy === 'polybanking' && ud.step2.polybanking_ref && !ud.step2.hasPaid">
+      <h1 class="subtitle">Nous attendons la confirmation du paiement, ça peut prendre quelques minutes donc considère
+        que c'est fait et si il y a un problème on te recontactera.</h1>
+    </div>
+
+    <div id="has-paid" v-if="ud.step2.hasPaid" class="columns">
+      <h1 class="subtitle">C'est terminé ! Vous pouvez vous relaxer, la prochaine étape c'est pas pour tout de suite
+        ;)</h1>
     </div>
   </div>
 </template>
 
 <script>
 import {mapState} from "vuex";
+import {ToastProgrammatic as Toast} from 'buefy';
 
 export default {
   name: 'PaymentStep',
   components: {},
   data: () => ({
-
+    isLoading: false,
   }),
   computed: {
 
     ...mapState({
-      price: state => 135 + (state.userData.step1.activities_options.includes('friday') ? 26 : 0)
+      price: state => (state.userData.step2.amountToPay / 100.00) + ' CHF',
+      ud: state => state.userData,
+      payBefore: state => {
+        const validatedDate = new Date(state.userData.step1.validatedDate);
+        const payBeforeDate = new Date(validatedDate);
+        payBeforeDate.setDate(validatedDate.getDate() + 3);
+        return payBeforeDate.toLocaleDateString('FR-fr');
+      }
     })
   },
   props: {},
   methods: {
+    setPaymentStrategy(newPaymentStrategy) {
+      const modifiedUserData = {
+        step2: {
+          paymentStrategy: newPaymentStrategy
+        }
+      }
 
+      this.$store.dispatch('editUserData', {userData: modifiedUserData, lazy: true});
+    },
+    payOnline() {
+      this.isLoading = true;
+      this.$store.dispatch('polybankingRequest').then(response => {
+        if (response.success) {
+          window.location = response.url;
+        } else {
+          Toast.open({
+            message: 'Une erreur est survenue avec Polybanking :(',
+            type: 'is-danger',
+            position: 'is-top',
+            duration: 3000,
+          });
+        }
+      }).catch(err => {
+        Toast.open({
+          message: 'Une erreur est survenue avec Polybanking :(',
+          type: 'is-danger',
+          position: 'is-top',
+          duration: 3000,
+        });
+        console.error(err);
+      }).finally(() => this.isLoading = false);
+    }
   }
 }
 </script>

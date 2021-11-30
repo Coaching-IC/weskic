@@ -39,6 +39,7 @@ function uploadDocument(state, url, data) {
 
 export default {
     state: {
+        agepKey: localStorage.getItem('agepKey') || '',
         jwt: localStorage.getItem('jwt') || '',
         userData: JSON.parse(localStorage.getItem('userData')) || {
             jwtData: {
@@ -49,6 +50,7 @@ export default {
             },
             step1: {
                 validated: false,
+                validatedDate: '',
                 reviewed: false,
                 remarks: '',
 
@@ -83,6 +85,15 @@ export default {
             },
             step2: {
                 available: false,
+                amountToPay: 0,
+                hasPaid: false,
+                hasPaidDate: '',
+                paymentStrategy: '',
+
+                polybanking_date: '',
+                polybanking_ref: '',
+                polybanking_url: '',
+                polybanking_ipn: {},
             },
             step3: {},
             step4: {},
@@ -104,6 +115,9 @@ export default {
             state.userData = {};
             localStorage.clear();
         },
+        setAgepKey(state, agepKey) {
+            state.agepKey = agepKey;
+        },
         setUserData(state, userData) {
             state.userData = userData;
         },
@@ -114,7 +128,7 @@ export default {
     },
 
     actions: {
-        loginWithTequila(_, requestedPage) {
+        loginWithTequila(_, {requestedPage}) {
             fetch(requestedPage ? '/api/tequila/request/' + requestedPage : '/api/tequila/request').then(response => response.json()).then(res => {
                 if (res.tequilaUrl) {
                     window.location = res.tequilaUrl;
@@ -157,14 +171,13 @@ export default {
         editUserData({commit,state}, {userData, lazy}) {
             return post(state, '/api/reg/updateUserData', {userData, lazy}).then(response => {
                 if (response.success) {
-                    console.log(response);
                     commit('setUserData', response.userData);
                     return response;
                 } else {
-                    console.error('Failed to update user data', response);
+                    return Promise.reject(response.error);
                 }
             }).catch(err => {
-                console.error('Failed to update user data: ', err);
+                return Promise.reject(err);
             });
         },
 
@@ -191,6 +204,32 @@ export default {
 
         helpForm({state}, {type, subject, message}) {
             return post(state, '/api/help-form', {type,subject,message});
+        },
+
+        checkAgepKey({state,commit}, {agepKey}) {
+            return new Promise((resolve,reject) => {
+                post(state, '/api/agep/checkConnection', {agepKey}).then(response=> {
+                    if (response.success) {
+                        commit('setAgepKey', agepKey);
+                        localStorage.setItem('agepKey', agepKey);
+                        resolve();
+                    } else {
+                        reject(response.error);
+                    }
+                }).catch(reject);
+            });
+        },
+
+        agepReadUser({state}, {sciper}) {
+            return post(state, '/api/agep/readUser', {sciper, agepKey: state.agepKey});
+        },
+
+        agepUpdateUser({state}, {sciper, hasPaid}) {
+            return post(state, '/api/agep/updateUser', {sciper, hasPaid, agepKey: state.agepKey});
+        },
+
+        polybankingRequest({state}) {
+            return post(state, '/api/reg/polybankingRequest', {});
         }
     }
 };

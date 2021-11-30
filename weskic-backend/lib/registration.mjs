@@ -12,7 +12,7 @@ import userData from "./userData.mjs";
 import {getLogger} from "./logger.mjs";
 import telegramBot from './telegramBot.mjs';
 import dischargeGenerator from "./dischargeGenerator.mjs";
-import * as fs from "fs";
+import Polybanking from './polybanking.mjs';
 
 const PROD = process.env.NODE_ENV.toLowerCase() === 'production';
 const logger = getLogger(PROD);
@@ -24,7 +24,8 @@ const upload = multer({
 });
 
 let registrationRouter = express.Router();
-let telegramUsernamesCache = [];
+let telegramUsernamesCache = []
+let polybanking = new Polybanking();
 
 registrationRouter.post('/userData', (req, res) => {
     const ud = userData.getUserDataFromCache(req.jwtData.sciper);
@@ -44,6 +45,11 @@ registrationRouter.post('/checkTelegramUsername', body('telegramUsername').isStr
                 bodyErrors: bodyErrors.array()
             });
         }
+
+        if (userData.getUserDataFromCache(req.jwtData.sciper).step1.validated) {
+            return res.sendStatus(403);
+        }
+
         const username = req.body.telegramUsername.replace('@', '');
         if (telegramUsernamesCache.includes(username)) {
             userData.updateTelegramStatus(req.jwtData.sciper, username, true);
@@ -95,14 +101,29 @@ function step1UpdateParser(step1) {
         step1copy.activities_options = [];
         step1copy.activities_options.push(...step1.activities_options);
     }
-    if (step1.activities_skiLevel && ['first-time', 'beginner', 'intermediate', 'excellent'])
+    if (step1.activities_skiLevel && Validator.isIn(step1.activities_skiLevel, ['first-time', 'beginner', 'intermediate', 'excellent']))
         step1copy.activities_skiLevel = step1.activities_skiLevel;
     else missingFields.push('activities_skiLevel');
 
     // Global
     step1copy.remarks = step1.remarks;
 
-    return {step1: step1copy, missingFields};
+    return {step1: step1copy, step1MissingFields: missingFields};
+}
+
+function step2UpdateParser(step2, userData) {
+    const step2copy = {};
+
+    // "hasPay" check // Later : for admin-purpose only
+    if (userData.step2.hasPaid) {
+        return {step2: {}, step2Illegal: true};
+    }
+
+    // Payment strategy
+    if (!userData.step2.polybanking_ref && step2.paymentStrategy !== undefined && Validator.isIn(step2.paymentStrategy, ['', 'agepoly', 'polybanking']))
+        step2copy.paymentStrategy = step2.paymentStrategy;
+
+    return {step2: step2copy, step2Illegal: false};
 }
 
 registrationRouter.post('/updateUserData', body('userData').isObject(), body('lazy').isBoolean(),
@@ -115,26 +136,50 @@ registrationRouter.post('/updateUserData', body('userData').isObject(), body('la
             });
         }
         const providedUserData = req.body.userData;
+        const previousUserData = userData.getUserDataFromCache(req.jwtData.sciper);
         let safeUserData = {};
+        let missingFields = [];
 
         // Sanitation & Validation
-        let {step1, missingFields} = step1UpdateParser(providedUserData.step1);
-        safeUserData.step1 = step1;
-        // Side-upload (files, signatures, telegram)
-        const previousUD = userData.getUserDataFromCache(req.jwtData.sciper);
-        if (!previousUD.step1.identity_idCard.date) missingFields.push('identity_idCard');
-        if (!previousUD.step1.activities_insuranceCard.date) missingFields.push('activities_insuranceCard');
-        if (!previousUD.step1.discharge_date) missingFields.push('discharge');
-        if (!previousUD.step1.telegram.hasJoined) missingFields.push('telegram_hasJoined');
+        const stepLocked = function() {
+            logger.error(`[REG] User ${req.jwtData.tequilaName} #${req.jwtData.sciper} tried to modify locked step`);
+            res.send({success: false, error: 'step locked'});
+        }
+
+        // STEP 1 - if not validated
+        if (!previousUserData.step1.validated && providedUserData.step1) {
+            let {step1, step1MissingFields} = step1UpdateParser(providedUserData.step1);
+            safeUserData.step1 = step1;
+            // Side-upload (files, signatures, telegram)
+            if (!previousUserData.step1.identity_idCard.date) step1MissingFields.push('identity_idCard');
+            if (!previousUserData.step1.activities_insuranceCard.date) step1MissingFields.push('activities_insuranceCard');
+            if (!previousUserData.step1.discharge_date) step1MissingFields.push('discharge');
+            if (!previousUserData.step1.telegram.hasJoined) step1MissingFields.push('telegram_hasJoined');
+            missingFields.push(...step1MissingFields);
+        } else if (previousUserData.step1.validated && providedUserData.step1) {
+            return stepLocked();
+
+
+            // STEP 2 - if not paid
+        } else if (!previousUserData.step2.hasPaid && providedUserData.step2) {
+            let {step2, step2Illegal} = step2UpdateParser(providedUserData.step2, previousUserData);
+            safeUserData.step2 = step2;
+
+        } else if (previousUserData.step2.hasPaid && providedUserData.step2) {
+            return stepLocked();
+        }
 
         userData.mutateUserData(req.jwtData.sciper, safeUserData, req.body.lazy).then(newUserData => {
             userData.setStep1Reviewed(req.jwtData.sciper, false);
             logger.info(`[REG] User ${req.jwtData.sciper} updated his form. Lazy: ${req.body.lazy ? 'yes' : 'no'}`);
 
+            // STEP 1 VALIDATION
             if (!req.body.lazy && missingFields.length === 0) {
                 userData.setStep1Validated(req.jwtData.sciper, true);
                 logger.info(`[REG] User ${req.jwtData.sciper} validated STEP 1`);
-            } else userData.setStep1Validated(req.jwtData.sciper, false);
+            }
+
+
             res.send({success: true, userData: newUserData, missingFields});
         }).catch(err => {
             logger.error(err);
@@ -143,6 +188,11 @@ registrationRouter.post('/updateUserData', body('userData').isObject(), body('la
     });
 
 registrationRouter.post('/uploadDocument', (req, res) => {
+
+    if (userData.getUserDataFromCache(req.jwtData.sciper).step1.validated) {
+        return res.sendStatus(403);
+    }
+
     upload.single('file')(req, res, err => {
         if (err instanceof multer.MulterError && err.message === 'File too large') {
             return res.status(400).json({error: 'File too large'});
@@ -188,6 +238,11 @@ registrationRouter.post('/generate-discharge', body('lastname'), body('firstname
                 bodyErrors: bodyErrors.array()
             });
         }
+
+        if (userData.getUserDataFromCache(req.jwtData.sciper).step1.validated) {
+            return res.sendStatus(403);
+        }
+
         const dateObj = new Date();
         dischargeGenerator.generateDischarge(req, res, dateObj);
         userData.dischargeSigned(req.jwtData.sciper, dateObj)
@@ -197,9 +252,32 @@ registrationRouter.post('/generate-discharge', body('lastname'), body('firstname
 registrationRouter.get('/my-discharge.pdf', (req, res) => {
     const userFilesPath = resolve('data/user-files');
     const fileName = 'discharge-'+req.jwtData.sciper+'.pdf';
-    const filePath = join(userFilesPath, fileName);
     res.sendFile(fileName, {root: userFilesPath});
 });
 
+registrationRouter.post('/polybankingRequest', (req, res) => {
+    const ud = userData.getUserDataFromCache(req.jwtData.sciper);
+    if (!ud.step2.available || ud.step2.hasPaid || ud.step2.paymentStrategy!=='polybanking') {
+        logger.error(`[POLYBANKING] User ${req.jwtData.sciper} tried to make a new request`);
+        return res.sendStatus(400);
+    }
+
+    const ref = `weskic-${req.jwtData.sciper}-${Date.now()}`;
+    polybanking.new_transaction(ref, 100).then(url => {
+        userData.setPolybankingRef(req.jwtData.sciper, ref, url);
+        res.send({success: true, url});
+    });
+});
+
+registrationRouter.post('/polybankingIPN', (req, res) => {
+    if (!polybanking.check_ipn(req.body)) {
+        userData.setPolybankingIPN(req.jwtData.sciper, req.body);
+        logger.info(`[POLYBANKING] IPN Received. body: ${JSON.stringify(req.body)}`);
+        res.sendStatus(200);
+    } else {
+        logger.info(`[POLYBANKING] IPN Check failed ! body: ${JSON.stringify(req.body)}`);
+        res.sendStatus(400);
+    }
+});
 
 export default {registrationRouter};
