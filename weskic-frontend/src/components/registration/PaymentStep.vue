@@ -4,7 +4,7 @@
     <hr>
 
     <b-notification :closable="false" has-icon icon="receipt">
-      <h2 class="subtitle">Montant à régler maintenant : <strong>{{price}}.00 CHF</strong><br>
+      <h2 class="subtitle">Montant à régler maintenant : <strong>{{price}}</strong><br>
       Tu y es presque, c'est bientôt fini !</h2>
     </b-notification>
 
@@ -33,7 +33,7 @@ export default {
   computed: {
 
     ...mapState({
-      price: state => 135 + (state.userData.step1.activities_options.includes('friday') ? 26 : 0)
+      price: state => (state.userData.step2.amountToPay / 100.00) + ' CHF'
     })
   },
   props: {},

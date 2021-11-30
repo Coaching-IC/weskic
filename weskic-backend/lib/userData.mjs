@@ -114,6 +114,8 @@ function createUserData(tequilaAttributes) {
             },
             step2: {
                 available: false,
+                amountToPay: 0,
+                hasPaid: false,
             },
             step3: {},
             step4: {},
@@ -235,16 +237,28 @@ function dischargeSigned(sciper, dateObject) {
 function setStep1Validated(sciper, validated) {
     userDataCache[sciper].step1.validated = validated;
     userDataCache[sciper].step2.available = validated;
+
+    if (validated) {
+        userDataCache[sciper].step2.amountToPay = 13500;
+        if (userDataCache[sciper].step1.activities_options.includes('friday'))
+            userDataCache[sciper].step2.amountToPay += 2600;
+    } else {
+        userDataCache[sciper].step2.amountToPay = 0;
+    }
 }
 
 function setStep1Reviewed(sciper, reviewed) {
     userDataCache[sciper].step1.reviewed = reviewed;
 }
 
+function setStep2HasPaid(sciper, hasPaid) {
+    userDataCache[sciper].step2.hasPaid = hasPaid;
+}
+
 export default {
     init, beforeExit, checkTequilaAttributes, mutateUserData, updateTelegramStatus,
     getUserDataFromCache, storeEncryptedUserFile, loadEncryptedUserFile, dischargeSigned,
-    setStep1Validated, setStep1Reviewed,
+    setStep1Validated, setStep1Reviewed, setStep2HasPaid,
 };
 
 /* ---------- HELPERS ---------- */

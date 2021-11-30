@@ -131,10 +131,13 @@ registrationRouter.post('/updateUserData', body('userData').isObject(), body('la
             userData.setStep1Reviewed(req.jwtData.sciper, false);
             logger.info(`[REG] User ${req.jwtData.sciper} updated his form. Lazy: ${req.body.lazy ? 'yes' : 'no'}`);
 
+            // STEP 1 VALIDATION
             if (!req.body.lazy && missingFields.length === 0) {
                 userData.setStep1Validated(req.jwtData.sciper, true);
                 logger.info(`[REG] User ${req.jwtData.sciper} validated STEP 1`);
             } else userData.setStep1Validated(req.jwtData.sciper, false);
+
+
             res.send({success: true, userData: newUserData, missingFields});
         }).catch(err => {
             logger.error(err);

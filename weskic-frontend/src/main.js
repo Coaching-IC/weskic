@@ -14,6 +14,7 @@ import RegistrationView from "@/components/RegistrationView";
 import HelpView from "@/components/HelpView";
 import vuexStoreOptions from './vuexStoreOptions';
 import DischargeForm from "@/components/registration/DischargeForm";
+import AgepView from "@/components/AgepView";
 
 
 Vue.config.productionTip = false;
@@ -101,6 +102,27 @@ function dischargeHandler(to, from, next) {
     next();
 }
 
+function agepKeyHandler(to) {
+    store.dispatch('checkAgepKey', {agepKey: to.params.agepKey}).then(() => {
+        Toast.open({
+            message: 'Connexion réussie',
+            type: 'is-success',
+            position: 'is-top',
+            duration: 3000
+        });
+        router.push({name: 'agep'});
+    }).catch(err => {
+        Toast.open({
+            message: 'La clé d\'accès est incorrecte. Contactez le responsable',
+            type: 'is-danger',
+            position: 'is-top',
+            indefinite: true
+        });
+        console.error(`Failed to check agepKey`, err);
+        router.push({name: 'help'});
+    });
+}
+
 const routes = [
     {path: '/', redirect: {name: 'info'}},
     {path: '/info', component: InfoView, name: 'info'},
@@ -113,6 +135,8 @@ const routes = [
     {path: '/discharge/:jwt', beforeEnter: dischargeHandler, component: DischargeForm, name: 'discharge'},
     {path: '/tequila', beforeEnter: tequilaResponseHandler},
     {path: '/tequila/:requestedPage', beforeEnter: tequilaResponseHandler},
+    {path: '/agep', name: 'agep', component: AgepView},
+    {path: '/agep/:agepKey', beforeEnter: agepKeyHandler},
     {
         path: '/registration', component: RegistrationView, name: 'registration', beforeEnter: (from, to, next) => {
             if (store.state.jwt === '') next({name: 'login'}); else next();
@@ -120,7 +144,7 @@ const routes = [
     },
     {
         path: '/help', component: HelpView, name: 'help', beforeEnter: (from, to, next) => {
-            if (store.state.jwt === '') store.dispatch('loginWithTequila', 'help'); else next();
+            if (store.state.jwt === '') store.dispatch('loginWithTequila', {requestedPage: 'help'}); else next();
         }
     },
     {
