@@ -269,15 +269,4 @@ registrationRouter.post('/polybankingRequest', (req, res) => {
     });
 });
 
-registrationRouter.post('/polybankingIPN', (req, res) => {
-    if (!polybanking.check_ipn(req.body)) {
-        userData.setPolybankingIPN(req.jwtData.sciper, req.body);
-        logger.info(`[POLYBANKING] IPN Received. body: ${JSON.stringify(req.body)}`);
-        res.sendStatus(200);
-    } else {
-        logger.info(`[POLYBANKING] IPN Check failed ! body: ${JSON.stringify(req.body)}`);
-        res.sendStatus(400);
-    }
-});
-
 export default {registrationRouter};

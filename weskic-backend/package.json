@@ -7,7 +7,8 @@
     "start": "node weskic.mjs",
     "dev": "nodemon weskic.mjs --ignore 'data/*'",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "prod": "node weskic.mjs"
+    "prod": "node weskic.mjs",
+    "build-push": "docker build -t registry.gitlab.com/agepoly/it/infra/kubernetes/weskic-backend . && docker push registry.gitlab.com/agepoly/it/infra/kubernetes/weskic-backend:latest"
   },
   "author": "",
   "license": "ISC",

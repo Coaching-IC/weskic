@@ -8,6 +8,7 @@ import {dirname} from 'path';
 import * as fs from "fs";
 import {body, validationResult} from 'express-validator';
 import bodyParser from "body-parser";
+import Polybanking from './lib/polybanking.mjs';
 
 const PORT = process.env.PORT;
 const UNITS_RULES = process.env.UNITS_RULES.split(' ');
@@ -33,6 +34,7 @@ const accessLoggerStream = {
         accessLogger.info(message);
     }
 }
+const polybanking = new Polybanking();
 
 const userDataReady = (req, res, next) => {
     if (userData.getUserDataFromCache(req.jwtData.sciper)) next();
@@ -180,6 +182,25 @@ app.post('/api/agep/updateUser', checkAgepKey,
     });
 
 /* ------------ MANAGEMENT ---------- */
+
+app.post('/api/mgt/polybankingIPN', (req, res) => {
+    try {
+        const sciper = req.body.reference.split('-')[1];
+        const ud = userData.getUserDataFromCache(sciper);
+        if (ud.step2.polybanking_ref === req.body.reference) {
+            userData.setPolybankingIPN(sciper, req.body);
+            logger.info(`[POLYBANKING] IPN Received for ${sciper}. body: ${JSON.stringify(req.body)}`);
+            res.sendStatus(200);
+        } else {
+            console.log(ud.step2.polybanking_ref, req.body.reference,ud.step2.polybanking_ref === req.body.reference)
+            logger.error(`[POLYBANKING] IPN Check failed ! body: ${JSON.stringify(req.body)}`);
+            res.sendStatus(400);
+        }
+    } catch (e) {
+        logger.error(`[POLYBANKING] IPN Check failed ! error: ${e} body: ${JSON.stringify(req.body)}`)
+        res.sendStatus(400);
+    }
+});
 
 const checkManagementKey = function (req, res, next) {
     if (req.params['mgtKey'] && req.params['mgtKey'] === MANAGEMENT_KEY) {

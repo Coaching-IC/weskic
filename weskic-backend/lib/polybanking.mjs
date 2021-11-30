@@ -50,7 +50,7 @@ function polybanking(base_url = "https://polybanking.agepoly.ch") {
     this.check_ipn = function (body) {
         let post_data = sortObject(body);
         delete post_data.sign;
-        return !(body.sign !== hash(post_data, this.keyIPN) || body.config !== this.config_id);
+        return !(body.sign != hash(post_data, this.keyIPN) || body.config != this.config_id);
     }
 }
 
