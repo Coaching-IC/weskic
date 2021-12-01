@@ -1,5 +1,4 @@
 import dotenv from "dotenv";
-
 dotenv.config();
 import express from "express";
 import jwt from "jsonwebtoken";
@@ -11,13 +10,13 @@ const JWT_KEY = process.env.JWT_KEY;
 const TEQUILA_RETURN_URL = process.env.TEQUILA_RETURN_URL;
 const UNITS_RULES = process.env.UNITS_RULES.split(' ');
 const ADMINS = (process.env.ADMINS && process.env.ADMINS.split(',')) || [];
+const GUESTS = (process.env.GUESTS && process.env.GUESTS.split(',')) || [];
 const PROD = process.env.NODE_ENV.toLowerCase() === 'production';
 
 const logger = getLogger(PROD);
 
 let accessControlRouter = express.Router();
 
-let authorizeEveryone = false;
 let authorizedUnits = []; // holds a cache of all units previously authorized by checkUnit
 
 const checkAuthentication = function (req, res, next) {
@@ -30,7 +29,7 @@ const checkAuthentication = function (req, res, next) {
                 return res.sendStatus(403);
             }
             req.jwtData = jwtData;
-            checkUnit(req, res, next);
+            next();
         });
     } else {
         return res.sendStatus(403);
@@ -38,8 +37,15 @@ const checkAuthentication = function (req, res, next) {
 }
 
 const checkUnit = function (req, res, next) {
-    if (authorizeEveryone) return next();
-    if (ADMINS.includes(req.jwtData.sciper)) return next();
+    if (ADMINS.includes(req.jwtData.sciper)
+    || GUESTS.includes(req.jwtData.sciper)
+    || userData.getUserDataFromCache(req.jwtData.sciper)) return next();
+
+    if (userData.soldOut()) {
+        res.send({error: 'ERR_SOLD_OUT'});
+        return;
+    }
+
     let errDate = false;
     let errList = false;
     let firstDate = undefined;
@@ -49,22 +55,15 @@ const checkUnit = function (req, res, next) {
         if (authorizedUnits.includes(unit)) {
             next();
         } else {
-            // Rather expensive but rarely used
             for (let rule of UNITS_RULES) {
                 const ruleArr = rule.split('=');
                 const date = new Date(ruleArr[0]);
                 const elapsedMS = Date.now() - date;
                 for (let ruleUnit of ruleArr[1].split(',')) {
                     let onTheList = false;
-                    if (ruleUnit === '*') {
-                        authorizeEveryone = elapsedMS > 0;
-                        onTheList = authorizeEveryone;
-                        wildcardDate = date;
-                    } else {
-                        const indexOfStar = ruleUnit.indexOf('*');
-                        if (indexOfStar !== -1 && ruleUnit.includes(unit.substr(0, indexOfStar))) {
-                            onTheList = true;
-                        }
+                    const indexOfStar = ruleUnit.indexOf('*');
+                    if (indexOfStar !== -1 && ruleUnit.includes(unit.substr(0, indexOfStar))) {
+                        onTheList = true;
                     }
                     if (ruleUnit === unit || onTheList)
                         if (elapsedMS > 0) {

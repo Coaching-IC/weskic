@@ -11,7 +11,7 @@ let apiKey = defaultClient.authentications['api-key'];
 apiKey.apiKey = process.env.SIB_API_KEY;
 
 const typeMapTo = {
-    it: [{"email":"sylvain.nerisson@epfl.ch","name":"Sylvain Nérisson"}],
+    it: [{"email":"sylvain.nerisson@epfl.ch","name":"Sylvain Nérisson"},{"email":"paul.madelenat@epfl.ch","name":"Paul Madelénat"}],
     anim: [{"email":"Comite_Coaching_IC_21-22@groupes.epfl.ch","name":"Comité Coaching IC"}],
     admin: [{"email":"Comite_Coaching_IC_21-22@groupes.epfl.ch","name":"Comité Coaching IC"}],
     report: [{"email":"hugues.devimeux@epfl.ch","name":"Hugues Devimeux"},{"email":"paul.madelenat@epfl.ch","name":"Paul Madelénat"}],

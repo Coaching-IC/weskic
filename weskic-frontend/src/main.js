@@ -58,7 +58,7 @@ function tequilaResponseHandler(to, from, next) {
                     console.log(message);
                     const dateStr = d.toLocaleString('fr-FR', {weekday: 'long', month: 'long', day: 'numeric'});
                     Toast.open({
-                        message: `Tu ne peux pas encore t'inscrire, pour ta section c'est à partir du ${dateStr}`,
+                        message: `Tu ne peux pas encore t'inscrire, les prochaines inscriptions sont le ${dateStr}`,
                         type: 'is-warning',
                         position: 'is-top',
                         indefinite: true
@@ -75,6 +75,13 @@ function tequilaResponseHandler(to, from, next) {
                         message: `L'authentifcation Tequila a échoué`,
                         type: 'is-danger',
                         position: 'is-top',
+                    });
+                } else if (message['error'] === 'ERR_SOLD_OUT') {
+                    Toast.open({
+                        message: `IL n'y a plus de place disponible - SOLD OUT`,
+                        type: 'is-danger',
+                        position: 'is-top',
+                        indefinite: true
                     });
                 } else {
                     Toast.open({

@@ -6,12 +6,12 @@
       <h1 class="title">Réservation WESKIC</h1>
       <h2 class="subtitle">ON EST PROCHE DE LA RUPTURE DE STOCK</h2>
       <hr>
-      <p class="text">Nous avons été victimes de notre succès :
-        les inscriptions sont en pause le temps de vérifier les paiements. On vous préviendra quand on rouvrira les inscriptions.</p>
+      <p class="text">En dehors des périodes d'inscriptions, seules les personnes qui ont
+        commencé leur inscription peuvent se connecter (pour la terminer).</p>
       <br>
       <div class="is-flex actionbar">
         <b-button type="is-outlined" expanded tag="router-link" :to="{name: 'info'}">Informations</b-button>
-        <b-button type="is-danger" disabled expanded tag="a" @click="loginWithTequila">EN PAUSE</b-button>
+        <b-button type="is-success" expanded tag="a" @click="loginWithTequila">Connexion</b-button>
       </div>
     </div>
 

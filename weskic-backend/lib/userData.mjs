@@ -1,7 +1,14 @@
+import dotenv from "dotenv";
+dotenv.config();
 import fs from 'fs';
 import fsE from 'fs-extra';
 import crypto from 'crypto';
 import BPromise from 'bluebird';
+
+const MAX_NORMAL_REGISTRATIONS = isNaN(process.env.MAX_NORMAL_REGISTRATIONS)
+    ? parseInt(process.env.MAX_NORMAL_REGISTRATIONS) : process.env.MAX_NORMAL_REGISTRATIONS;
+const ADMINS = (process.env.ADMINS && process.env.ADMINS.split(',')) || [];
+const GUESTS = (process.env.GUESTS && process.env.GUESTS.split(',')) || [];
 
 let key; // aes-256 24B
 let logger;
@@ -325,12 +332,25 @@ function setUserData(sciper, ud) {
     return saveUserData(sciper);
 }
 
+function soldOut() {
+    let normalCounter = 0;
+    for (let sciper in userDataCache) {
+        const ud = userDataCache[sciper];
+        if (!ADMINS.includes(ud.info.sciper) && !GUESTS.includes(ud.info.sciper)) {
+            normalCounter++;
+        }
+    }
+    const isSoldOut = normalCounter >= MAX_NORMAL_REGISTRATIONS;
+    logger.info(`[REG] SOLD OUT CHECK : ${normalCounter} / ${MAX_NORMAL_REGISTRATIONS} MAX : ${isSoldOut ? 'SOLD OUT !!' : (MAX_NORMAL_REGISTRATIONS-normalCounter)+' remaining'}`);
+    return isSoldOut;
+}
+
 export default {
     init, beforeExit, checkTequilaAttributes, mutateUserData, updateTelegramStatus,
     getUserDataFromCache, storeEncryptedUserFile, loadEncryptedUserFile, dischargeSigned,
     setStep1Validated, setStep1Reviewed, setStep2HasPaid, cancelStep,
     setPolybankingRef, resetPolybanking, setPolybankingIPN, deleteUserData, allUserData,
-    setUserData,
+    setUserData, soldOut,
 };
 
 /* ---------- HELPERS ---------- */

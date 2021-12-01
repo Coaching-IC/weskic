@@ -252,6 +252,10 @@ app.post('/api/mgt/:mgtKey/setUserData', checkManagementKey, (req, res) => {
     } else res.status(400).json(req.body);
 });
 
+// app.get('/api/mgt/:mgtKey/stats', checkManagementKey, (req, res) => {
+//
+// });
+
 /* ------------ EXPRESS ---------- */
 
 if (!fs.existsSync('data')) fs.mkdirSync('data');

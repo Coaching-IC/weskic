@@ -29,16 +29,13 @@
         <div id="dates" class="notification is-warning">
           <h3 class="subtitle">Dates d'inscription</h3>
           <ul>
-            <li><strong>1</strong> décembre midi - <strong>IN/SC BA1</strong></li>
+            <li><strong>1er</strong> décembre midi - <strong>IN/SC BA1 <br> INSCRIPTIONS TERMINÉES pour ce jour</strong></li>
+            <br>
             <li><strong>3</strong> décembre midi - <strong>IN/SC BA1/3</strong></li>
-            <li><strong>6</strong> décembre midi - <strong>IN/SC</strong></li>
-            <li><strong>8</strong> décembre midi - <strong>EPFL</strong></li>
           </ul>
           <br>
           <strong>Conditions de participation</strong> : tu dois <strong>être majeur</strong> et avoir un <strong>certificat
-          COVID</strong> valide pour tout le séjour.<br><br>
-          Bien que le site fonctionne sur mobile, il est recommandé d'utiliser un ordinateur pour remplir les formulaires.
-        </div>
+          COVID</strong> valide pour tout le séjour.</div>
 
       </div>
     </div>
