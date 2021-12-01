@@ -4,14 +4,14 @@
 
     <div id="leftBox" class="">
       <h1 class="title">Réservation WESKIC</h1>
-      <h2 class="subtitle">Weekend Ski - Coaching IC</h2>
+      <h2 class="subtitle">ON EST PROCHE DE LA RUPTURE DE STOCK</h2>
       <hr>
-      <p class="text">Comme chaque année (hum hum 2020) le Coaching IC organise son inoubliable Weekend Ski. Et cette
-        fois-ci on revient en force avec un jour de plus et un nouvel endroit !</p>
+      <p class="text">Nous avons été victimes de notre succès :
+        les inscriptions sont en pause le temps de vérifier les paiements. On vous préviendra quand on rouvrira les inscriptions.</p>
       <br>
       <div class="is-flex actionbar">
         <b-button type="is-outlined" expanded tag="router-link" :to="{name: 'info'}">Informations</b-button>
-        <b-button type="is-info" expanded tag="a" @click="loginWithTequila">Connexion</b-button>
+        <b-button type="is-danger" disabled expanded tag="a" @click="loginWithTequila">EN PAUSE</b-button>
       </div>
     </div>
 
