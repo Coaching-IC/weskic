@@ -33,7 +33,6 @@ function storeEncryptedUD(sciper) {
 }
 
 function restoreEncryptedUD(sciper) {
-    logger.debug(`RESTORE UD ${sciper} START`);
     return new BPromise((resolve, reject) => {
         fs.readFile(`data/user-data/user-${sciper}.aes`, (err, all_data) => {
             if (err) reject(err);
@@ -45,7 +44,6 @@ function restoreEncryptedUD(sciper) {
             let decrypted = Buffer.concat([decipher.update(encrypted), decipher.final()]);
             const ud = JSON.parse(decrypted.toString());
             userDataCache[sciper] = ud;
-            logger.debug(`RESTORE UD ${sciper} END`);
             resolve(ud);
         });
     });
@@ -311,11 +309,28 @@ function resetPolybanking(sciper) {
     dataToSave = true;
 }
 
+function deleteUserData(sciper) {
+    delete userDataCache[sciper];
+    fs.rm(`data/user-data/user-${sciper}.aes`, err => {
+        if (err) logger.error(`User data deletion failed, err : ${err}`);
+    });
+}
+
+function allUserData() {
+    return userDataCache;
+}
+
+function setUserData(sciper, ud) {
+    userDataCache[sciper] = ud;
+    return saveUserData(sciper);
+}
+
 export default {
     init, beforeExit, checkTequilaAttributes, mutateUserData, updateTelegramStatus,
     getUserDataFromCache, storeEncryptedUserFile, loadEncryptedUserFile, dischargeSigned,
     setStep1Validated, setStep1Reviewed, setStep2HasPaid, cancelStep,
-    setPolybankingRef, resetPolybanking, setPolybankingIPN
+    setPolybankingRef, resetPolybanking, setPolybankingIPN, deleteUserData, allUserData,
+    setUserData,
 };
 
 /* ---------- HELPERS ---------- */

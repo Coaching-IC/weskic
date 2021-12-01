@@ -230,6 +230,28 @@ app.get('/api/mgt/:mgtKey/resetPolybanking/:sciper', checkManagementKey, (req, r
     res.send(JSON.stringify(userData.getUserDataFromCache(req.params.sciper), null, ' '));
 });
 
+app.get('/api/mgt/:mgtKey/deleteUserData/:sciper', checkManagementKey, (req, res) => {
+   logger.info(`[MGT] deleteUserData for ${req.params.sciper}`);
+   if (req.params.sciper) {
+       userData.deleteUserData(req.params.sciper);
+   }
+   res.sendStatus(200);
+});
+
+app.get('/api/mgt/:mgtKey/allUserData', checkManagementKey, (req, res) => {
+    logger.info(`[MGT] allUserData`);
+    res.send(userData.allUserData());
+});
+
+app.post('/api/mgt/:mgtKey/setUserData', checkManagementKey, (req, res) => {
+    logger.info(`[MGT] setUserData for ${req.body.sciper}`);
+    if (req.body.userData && Object.keys(req.body.userData).length > 0) {
+        userData.setUserData(req.body.sciper, req.body.userData).then(() => {
+            res.sendStatus(200);
+        }).catch(res.status(500).send);
+    } else res.status(400).json(req.body);
+});
+
 /* ------------ EXPRESS ---------- */
 
 if (!fs.existsSync('data')) fs.mkdirSync('data');

@@ -34,7 +34,7 @@
       </div>
       <div class="column">
         <b-field label="Numéro d'urgence (avec indicatif !)"
-                 :message="ud.step1.identity_emergencyPhone.indexOf(' ')!==-1 ? `Ne pas mettre d'espace` : ''"
+                 message="Merci de vérifier le numéro"
                  :type="(ud.step1.identity_emergencyPhone.length>0
                  && (ud.step1.identity_emergencyPhone.indexOf(' ')!==-1
                  || !ud.step1.identity_emergencyPhone.startsWith('+'))) ? `is-danger` : ''">
@@ -116,13 +116,22 @@
                         @input="lazySaveTrigger">
               Forfait pour Vendredi 11 - 26.00 CHF (1)
             </b-checkbox>
-            <b-checkbox v-model="ud.step1.activities_options" native-value="saturday" class="marginBottom10"
+
+            <b-checkbox v-model="ud.step1.activities_options" native-value="saturday-torgon" class="marginBottom10"
                         @input="lazySaveTrigger">
-              Forfait pour Samedi 12 (2)
+              Forfait Torgon Samedi 12 (2)
             </b-checkbox>
-            <b-checkbox v-model="ud.step1.activities_options" native-value="sunday" class="marginBottom10"
+            <b-checkbox v-model="ud.step1.activities_options" native-value="saturday-liberte" class="marginBottom10"
                         @input="lazySaveTrigger">
-              Forfait pour Dimanche 13 (2)
+              Forfait Liberté Samedi 12 (2)
+            </b-checkbox>
+            <b-checkbox v-model="ud.step1.activities_options" native-value="sunday-torgon" class="marginBottom10"
+                        @input="lazySaveTrigger">
+              Forfait Torgon Dimanche 13 (3)
+            </b-checkbox>
+            <b-checkbox v-model="ud.step1.activities_options" native-value="sunday-liberte" class="marginBottom10"
+                        @input="lazySaveTrigger">
+              Forfait Liberté Dimanche 13 (3)
             </b-checkbox>
           </div>
         </b-field>
@@ -153,10 +162,12 @@
       </div>
 
       <div class="column">
-        <p>(1) <strong>Espace Torgon</strong>, paiement sur ce site en même temps que le prix de base. Le prix indiqué
-          est un prix de groupe.</p><br>
-        <p>(2) <strong>Espace Liberté</strong>, simple sondage, paiement sur place. Ce domaine est bien
-          plus grand et un peu plus cher. Si assez de personnes veulent skier le forfait de groupe
+        <p>(1) <strong>Espace Torgon</strong> uniquement, paiement sur ce site en même temps que le prix de base. Le prix indiqué
+          est un prix de groupe.</p>
+        <p>(2) simple sondage, paiement sur place.</p>
+        <p>(3) simple sondage, paiement sur place. <strong>Si vous ne revenez pas avant 11h vous rentrez sans nous !</strong></p><br>
+        <p>L'<strong>espace Liberté</strong> est bien plus grand mais un peu plus cher.
+          Si assez de personnes veulent skier le forfait de groupe
           sera aussi disponible pour ce jour.</p><br>
         <ul style="list-style-type: circle;">
           <li><a target="_blank" href="https://torgon.esecure.ch/fr/nos-forfaits">Prix individuels des 3 espaces</a>
@@ -196,6 +207,7 @@
           </div>
           <div v-else>
             <p>Décharge signée le {{dischargeDisplayDate}}</p>
+            <b-button tag="a" :href="dischargeUrl" target="_blank">Voir le PDF</b-button>
           </div>
         </b-field>
 
@@ -313,10 +325,12 @@ export default {
         return date.toLocaleString();
       },
       optionsMessage: state => {
-        if (state.userData.step1.activities_options.includes('course') && !state.userData.step1.activities_options.includes('friday')
-            && !state.userData.step1.activities_options.includes('saturday'))
-          return 'Pour prendre des cours il faut prendre un forfait';
+        if (state.userData.step1.activities_options.includes('course') && !state.userData.step1.activities_options.includes('friday'))
+          return 'Pour prendre des cours il faut prendre un forfait Vendredi';
         else return '';
+      },
+      dischargeUrl: state => {
+        return window.location.origin + '/api/reg-jwt/' + state.jwt + '/my-discharge.pdf';
       }
     })
   },

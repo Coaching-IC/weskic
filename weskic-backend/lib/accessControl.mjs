@@ -106,9 +106,7 @@ const createJWT = function (tequilaObject) {
 }
 
 const handleTequilaRequest = (req, res) => {
-    const returnUrl = req.params.requestedPage ? TEQUILA_RETURN_URL + '/' + req.params.requestedPage : TEQUILA_RETURN_URL;
-    console.log('return url : ', returnUrl)
-    tequila.generateKey(returnUrl).then(key => {
+    const returnUrl = req.params.requestedPage ? TEQUILA_RETURN_URL + '/' + req.params.requestedPage : TEQUILA_RETURN_URL;    tequila.generateKey(returnUrl).then(key => {
         if (!key) {
             logger.error('Failed to generate a Tequila key');
             return res.sendStatus(500);

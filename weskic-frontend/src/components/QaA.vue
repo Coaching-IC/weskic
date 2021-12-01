@@ -56,7 +56,7 @@
             <li><p>Jour 2 - Samedi : <strong>Espace Liberté</strong>, simple sondage, paiement sur place. Ce domaine est bien
               plus grand et un peu plus cher. Si assez de personnes veulent skier le forfait de groupe
               sera aussi disponible pour ce jour. Sinon ce sera 39.00 CHF </p></li>
-            <li><p>Jour 3 - Samedi : simple sondage, paiement sur place. Attention : c'est le jour du départ donc si vous skiez vous rentrez <strong>par vos propres moyens</strong></p></li>
+            <li><p>Jour 3 - Dimanche : simple sondage, paiement sur place. Attention : c'est le jour du départ donc si vous skiez vous rentrez <strong>par vos propres moyens</strong></p></li>
           </ul>
 
 

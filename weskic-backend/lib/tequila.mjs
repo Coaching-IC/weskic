@@ -1,7 +1,5 @@
 import fetch from 'node-fetch';
 
-const JWT_PRIV_KEY = process.env.JWT_KEY || Math.random().toString(36);
-
 const params = [
     "displayname",
     "uniqueid",

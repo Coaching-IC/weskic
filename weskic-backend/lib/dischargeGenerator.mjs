@@ -1,7 +1,7 @@
 import fs from "fs";
 import {PDFDocument} from "pdf-lib";
 
-const modelPath = 'data/assets/charte-weskic.pdf';
+const modelPath = 'assets/charte-weskic.pdf';
 const fieldsMetadata =
     {
         lastname: {

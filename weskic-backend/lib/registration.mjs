@@ -80,7 +80,7 @@ function step1UpdateParser(step1) {
         step1copy.identity_firstname = step1.identity_firstname;
     else missingFields.push('identity_firstname');
 
-    if (step1.identity_emergencyPhone && Validator.isMobilePhone(step1.identity_emergencyPhone, false, {strictMode: true}))
+    if (step1.identity_emergencyPhone && step1.identity_emergencyPhone.startsWith('+'))
         step1copy.identity_emergencyPhone = step1.identity_emergencyPhone;
     else missingFields.push('identity_emergencyPhone');
 
@@ -97,7 +97,7 @@ function step1UpdateParser(step1) {
     step1copy.constraints_drugsAllergy = step1.constraints_drugsAllergy;
 
     // Activities
-    if (isArrayASubsetOf(step1.activities_options, ['course', 'friday', 'saturday', 'sunday'])) {
+    if (isArrayASubsetOf(step1.activities_options, ['course', 'friday', 'saturday-torgon', 'sunday-torgon', 'saturday-liberte', 'sunday-liberte'])) {
         step1copy.activities_options = [];
         step1copy.activities_options.push(...step1.activities_options);
     }
@@ -263,7 +263,7 @@ registrationRouter.post('/polybankingRequest', (req, res) => {
     }
 
     const ref = `weskic-${req.jwtData.sciper}-${Date.now()}`;
-    polybanking.new_transaction(ref, 100).then(url => {
+    polybanking.new_transaction(ref, ud.step2.amountToPay).then(url => {
         userData.setPolybankingRef(req.jwtData.sciper, ref, url);
         res.send({success: true, url});
     });
