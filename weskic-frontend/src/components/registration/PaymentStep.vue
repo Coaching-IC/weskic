@@ -60,7 +60,7 @@
     </div>
 
     <div id="has-paid" v-if="ud.step2.hasPaid" class="columns">
-      <h1 class="subtitle">C'est terminé ! Vous pouvez vous relaxer, la prochaine étape c'est pas pour tout de suite
+      <h1 class="subtitle"><strong>PAIEMENT VALIDÉ</strong> C'est terminé ! Vous pouvez vous relaxer, la prochaine étape c'est pas pour tout de suite
         ;)</h1>
     </div>
   </div>
