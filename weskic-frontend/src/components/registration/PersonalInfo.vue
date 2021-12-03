@@ -274,10 +274,9 @@
       <br>
       <br>
       <h2 class="subtitle">Informations relatives à la protection des données</h2>
-      <p>Toutes les informations personnelles saisies ci-dessus sont chiffrées et seront détruites après l'événement.
-        Accès complet pour les 2 Supercoachs et Cybercoach, accès spécifique pour les autres responsables.</p>
+      <p>Toutes les informations personnelles saisies ci-dessus sont stockées sur les serveurs de l'AGEPoly et seront détruites après l'événement.
+        Accès complet pour les 2 Supercoachs et le Cybercoach, accès spécifique pour les autres responsables.</p>
     </div>
-
   </div>
 </template>
 

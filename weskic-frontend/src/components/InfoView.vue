@@ -31,12 +31,12 @@
           <ul>
             <li><strong>1er</strong> décembre midi - <strong>IN/SC BA1 <br> INSCRIPTIONS TERMINÉES pour ce jour</strong></li>
             <br>
-            <li><strong>3</strong> décembre midi - <strong>IN/SC BA1/3</strong></li>
+            <li><strong>4</strong> décembre midi - <strong>IN/SC BA1/3</strong><br>
+            Notez qu'il reste très peu de places</li>
           </ul>
           <br>
           <strong>Conditions de participation</strong> : tu dois <strong>être majeur</strong> et avoir un <strong>certificat
           COVID</strong> valide pour tout le séjour.</div>
-
       </div>
     </div>
 

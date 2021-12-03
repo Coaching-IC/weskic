@@ -1,5 +1,4 @@
 import dotenv from 'dotenv';
-
 dotenv.config();
 import express from 'express';
 import morgan from 'morgan';
@@ -14,7 +13,6 @@ const PORT = process.env.PORT;
 const UNITS_RULES = process.env.UNITS_RULES.split(' ');
 const ADMINS = (process.env.ADMINS && process.env.ADMINS.split(',')) || [];
 const MANAGEMENT_KEY = process.env.MANAGEMENT_KEY;
-const ENCRYPTION_KEY = process.env.ENCRYPTION_KEY;
 const AGEP_KEY = process.env.AGEP_KEY;
 
 import updater from './lib/staticUpdater.mjs';
@@ -27,7 +25,6 @@ import mailService from "./lib/mailService.mjs";
 const DIRNAME = dirname(fileURLToPath(import.meta.url));
 const PROD = process.env.NODE_ENV.toLowerCase() === 'production';
 const logger = getLogger(PROD);
-userData.init(ENCRYPTION_KEY, logger);
 const accessLogger = getAccessLogger(PROD);
 const accessLoggerStream = {
     write: function (message) {
@@ -43,6 +40,8 @@ const userDataReady = (req, res, next) => {
         res.status(400).json({error: 'no user data'});
     }
 }
+
+userData.loadData();
 
 logger.info(`WESKIC Server starting in ${PROD ? 'PRODUCTION' : 'DEV'} mode`);
 logger.debug({UNITS_RULES});
@@ -235,7 +234,7 @@ app.get('/api/mgt/:mgtKey/listFiles', checkManagementKey, (req, res) => {
 });
 
 app.get('/api/mgt/:mgtKey/userFiles/:sciper/:type/:originalName', checkManagementKey, (req, res) => {
-    userData.loadEncryptedUserFile(req.params.sciper, req.params.type, req.params.originalName)
+    userData.loadUserFile(req.params.sciper, req.params.type, req.params.originalName)
         .then(file => res.send(file));
 });
 

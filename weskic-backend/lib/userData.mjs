@@ -2,54 +2,43 @@ import dotenv from "dotenv";
 dotenv.config();
 import fs from 'fs';
 import fsE from 'fs-extra';
-import crypto from 'crypto';
 import BPromise from 'bluebird';
+import {getLogger} from "./logger.mjs";
 
+const PROD = process.env.NODE_ENV.toLowerCase() === 'production';
+const logger = getLogger(PROD);
 const MAX_NORMAL_REGISTRATIONS = isNaN(process.env.MAX_NORMAL_REGISTRATIONS)
     ? parseInt(process.env.MAX_NORMAL_REGISTRATIONS) : process.env.MAX_NORMAL_REGISTRATIONS;
 const ADMINS = (process.env.ADMINS && process.env.ADMINS.split(',')) || [];
 const GUESTS = (process.env.GUESTS && process.env.GUESTS.split(',')) || [];
 
-let key; // aes-256 24B
-let logger;
 let userDataCache = {}; // key: sciper
 let dataToSave = false;
 
 fsE.ensureDirSync('data/user-data');
 fsE.ensureDirSync('data/user-files');
 
-function loadEncryptedData() {
-    const scipers = fs.readdirSync('data/user-data').filter(val => val.endsWith('.aes')).map(s => s.slice(5, 11));
-    BPromise.each(scipers, sciper => restoreEncryptedUD(sciper)).then(() => {
-        logger.debug(`Loaded ${Object.keys(userDataCache).length} user data objects.`);
+function loadData() {
+    const scipers = fs.readdirSync('data/user-data').filter(val => val.endsWith('.json')).map(s => s.slice(5, 11));
+    BPromise.each(scipers, sciper => parseUserData(sciper)).then(() => {
+        logger.debug(`Loaded ${Object.keys(userDataCache).length} / max ${MAX_NORMAL_REGISTRATIONS} user data objects.`);
     });
 }
 
-function storeEncryptedUD(sciper) {
+function saveUserDataToDisk(sciper) {
     return new BPromise((resolve, reject) => {
-        let iv = crypto.randomBytes(16);
-        const cipher = crypto.createCipheriv('aes-256-gcm', key, iv);
-        const encrypted = Buffer.concat([cipher.update(JSON.stringify(userDataCache[sciper])), cipher.final()])
-        const authTag = cipher.getAuthTag();
-        const output = Buffer.concat([iv, authTag, encrypted]);
-        fs.writeFile(`data/user-data/user-${sciper}.aes`, output, err => {
+        fs.writeFile(`data/user-data/user-${sciper}.json`, JSON.stringify(userDataCache[sciper],null,' '), err => {
             if (err) reject(err);
             else resolve();
         });
     });
 }
 
-function restoreEncryptedUD(sciper) {
+function parseUserData(sciper) {
     return new BPromise((resolve, reject) => {
-        fs.readFile(`data/user-data/user-${sciper}.aes`, (err, all_data) => {
+        fs.readFile(`data/user-data/user-${sciper}.json`, (err, all_data) => {
             if (err) reject(err);
-            const iv = all_data.slice(0, 16);
-            const authTag = all_data.slice(16, 32);
-            const encrypted = all_data.slice(32);
-            const decipher = crypto.createDecipheriv('aes-256-gcm', key, iv);
-            decipher.setAuthTag(authTag);
-            let decrypted = Buffer.concat([decipher.update(encrypted), decipher.final()]);
-            const ud = JSON.parse(decrypted.toString());
+            const ud = JSON.parse(all_data.toString());
             userDataCache[sciper] = ud;
             resolve(ud);
         });
@@ -64,10 +53,10 @@ function saveUserData(sciper) {
                 logger.error(`Save : Can't find user data for ${sciper}`);
                 reject();
             } else {
-                storeEncryptedUD(sciper).then(resolve).catch(reject);
+                saveUserDataToDisk(sciper).then(resolve).catch(reject);
             }
         } else {
-            BPromise.map(Object.keys(userDataCache), sciper => storeEncryptedUD(sciper)).then(resolve).catch(reject);
+            BPromise.map(Object.keys(userDataCache), sciper => saveUserDataToDisk(sciper)).then(resolve).catch(reject);
         }
     });
 }
@@ -82,6 +71,7 @@ function createUserData(tequilaAttributes) {
                 units: tequilaAttributes.allunits.split(','),
                 tequilaName: tequilaAttributes.displayname,
                 registrationDate: now.toISOString(),
+                isAdmin: ADMINS.includes(sciper)
             },
             step1: {
                 validated: false,
@@ -133,7 +123,7 @@ function createUserData(tequilaAttributes) {
             step3: {},
             step4: {},
         };
-        storeEncryptedUD(sciper).then(() => {
+        saveUserDataToDisk(sciper).then(() => {
             logger.info(`New registration for ${sciper} - ${tequilaAttributes.displayname}`);
             resolve(userDataCache[sciper]);
         }).catch(reject);
@@ -141,18 +131,6 @@ function createUserData(tequilaAttributes) {
 }
 
 /* ---------- EXPORTED ---------- */
-
-function init(encryptionKey, udLogger) {
-    if (encryptionKey === undefined) {
-        throw 'NO_ENCRYPTION_KEY';
-    } else if (encryptionKey.length !== 32) {
-        console.log('encryptionKey.length : ', encryptionKey, encryptionKey.length);
-        throw 'ENCRYPTION KEY MUST BE 32B LONG';
-    }
-    key = encryptionKey;
-    logger = udLogger;
-    loadEncryptedData();
-}
 
 function beforeExit(callback) {
     if (dataToSave) {
@@ -200,14 +178,9 @@ function getUserDataFromCache(sciper) {
     return userDataCache[sciper];
 }
 
-function storeEncryptedUserFile(sciper, type, originalName, buffer) {
+function storeUserFile(sciper, type, originalName, buffer) {
     return new BPromise((resolve, reject) => {
-        let iv = crypto.randomBytes(16);
-        const cipher = crypto.createCipheriv('aes-256-gcm', key, iv);
-        const encrypted = Buffer.concat([cipher.update(buffer), cipher.final()])
-        const authTag = cipher.getAuthTag();
-        const output = Buffer.concat([iv, authTag, encrypted]);
-        fs.writeFile(`data/user-files/${type}-${sciper}-${originalName}.aes`, output, err => {
+        fs.writeFile(`data/user-files/${type}-${sciper}-${originalName}`, buffer, err => {
             if (err) reject(err);
             else {
                 const now = new Date;
@@ -220,6 +193,8 @@ function storeEncryptedUserFile(sciper, type, originalName, buffer) {
                     userDataCache[sciper].step1.identity_idCard = fileMeta;
                 } else if (type === 'activities_insuranceCard') {
                     userDataCache[sciper].step1.activities_insuranceCard = fileMeta;
+                } else {
+                    reject('unknown type');
                 }
                 resolve(fileMeta);
             }
@@ -227,18 +202,12 @@ function storeEncryptedUserFile(sciper, type, originalName, buffer) {
     });
 }
 
-function loadEncryptedUserFile(sciper, type, originalName) {
+function loadUserFile(sciper, type, originalName) {
     return new BPromise((resolve, reject) => {
-        fs.readFile(`data/user-files/${type}-${sciper}-${originalName}.aes`, (err, all_data) => {
+        fs.readFile(`data/user-files/${type}-${sciper}-${originalName}`, (err, all_data) => {
             if (err) return reject(err);
             if (!all_data) return reject('not found');
-            const iv = all_data.slice(0, 16);
-            const authTag = all_data.slice(16, 32);
-            const encrypted = all_data.slice(32);
-            const decipher = crypto.createDecipheriv('aes-256-gcm', key, iv);
-            decipher.setAuthTag(authTag);
-            let decrypted = Buffer.concat([decipher.update(encrypted), decipher.final()]);
-            resolve(decrypted);
+            resolve(all_data);
         });
     });
 }
@@ -318,7 +287,7 @@ function resetPolybanking(sciper) {
 
 function deleteUserData(sciper) {
     delete userDataCache[sciper];
-    fs.rm(`data/user-data/user-${sciper}.aes`, err => {
+    fs.rm(`data/user-data/user-${sciper}.json`, err => {
         if (err) logger.error(`User data deletion failed, err : ${err}`);
     });
 }
@@ -346,8 +315,8 @@ function soldOut() {
 }
 
 export default {
-    init, beforeExit, checkTequilaAttributes, mutateUserData, updateTelegramStatus,
-    getUserDataFromCache, storeEncryptedUserFile, loadEncryptedUserFile, dischargeSigned,
+    loadData, beforeExit, checkTequilaAttributes, mutateUserData, updateTelegramStatus,
+    getUserDataFromCache, storeEncryptedUserFile: storeUserFile, loadUserFile, dischargeSigned,
     setStep1Validated, setStep1Reviewed, setStep2HasPaid, cancelStep,
     setPolybankingRef, resetPolybanking, setPolybankingIPN, deleteUserData, allUserData,
     setUserData, soldOut,

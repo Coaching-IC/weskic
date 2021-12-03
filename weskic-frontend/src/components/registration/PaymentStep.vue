@@ -10,7 +10,6 @@
         </div>
         <div class="column">
           <h2 class="subtitle">Montant à régler maintenant : <strong>{{ price }}</strong><br>
-            Tu as 3 jours pour finaliser le paiement. <br>
             Si tu as un problème, utilise le <a href="/help" target="_blank">formulaire</a></h2>
         </div>
         <div class="column is-flex is-justify-content-space-around" v-if="ud.step2.paymentStrategy">
@@ -38,7 +37,7 @@
       </div>
     </div>
 
-    <div id="payment-agepoly" v-if="ud.step2.paymentStrategy === 'agepoly'" class="columns">
+    <div id="payment-agepoly" v-if="ud.step2.paymentStrategy === 'agepoly' && !ud.step2.hasPaid" class="columns">
       <h1 class="subtitle">Ta demande de payer à la boutique de l'AGEPoly a été enregistrée. Tu dois y aller avant le
         {{ payBefore }}. Après nous ne pouvons plus garantir ta place.</h1>
     </div>
@@ -56,8 +55,8 @@
     </div>
 
     <div v-if="ud.step2.paymentStrategy === 'polybanking' && ud.step2.polybanking_ref && !ud.step2.hasPaid">
-      <h1 class="subtitle">Nous attendons la confirmation du paiement, ça peut prendre quelques minutes donc considère
-        que c'est fait et si il y a un problème on te recontactera.</h1>
+      <h1 class="subtitle">En attente de la confirmation du paiement, si après avoir refresh la page quelques minutes après votre paiement vous voyez toujours
+        ce message vous pouvez <a href="/help" target="_blank">nous contacter</a>.</h1>
     </div>
 
     <div id="has-paid" v-if="ud.step2.hasPaid" class="columns">

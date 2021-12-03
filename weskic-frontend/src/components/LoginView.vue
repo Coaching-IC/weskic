@@ -4,10 +4,10 @@
 
     <div id="leftBox" class="">
       <h1 class="title">Réservation WESKIC</h1>
-      <h2 class="subtitle">ON EST PROCHE DE LA RUPTURE DE STOCK</h2>
+      <h2 class="subtitle">Quasiment toutes les places sont prises</h2>
       <hr>
       <p class="text">En dehors des périodes d'inscriptions, seules les personnes qui ont
-        commencé leur inscription peuvent se connecter (pour la terminer).</p>
+        commencé leur inscription peuvent se connecter.</p>
       <br>
       <div class="is-flex actionbar">
         <b-button type="is-outlined" expanded tag="router-link" :to="{name: 'info'}">Informations</b-button>
