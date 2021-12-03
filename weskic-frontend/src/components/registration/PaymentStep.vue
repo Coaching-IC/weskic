@@ -38,8 +38,8 @@
     </div>
 
     <div id="payment-agepoly" v-if="ud.step2.paymentStrategy === 'agepoly' && !ud.step2.hasPaid" class="columns">
-      <h1 class="subtitle">Ta demande de payer à la boutique de l'AGEPoly a été enregistrée. Tu dois y aller avant le
-        {{ payBefore }}. Après nous ne pouvons plus garantir ta place.</h1>
+      <h1 class="subtitle">Ta demande de payer à la boutique de l'AGEPoly a été enregistrée. Prenez en compte les heures
+        d'ouvertures de la boutique et le délais indiqué sur Telegram. Au-delà nous ne pouvons plus garantir ta place.</h1>
     </div>
 
     <div id="payment-polybanking" v-if="ud.step2.paymentStrategy === 'polybanking' && !ud.step2.polybanking_ref" class="columns">
