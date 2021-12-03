@@ -67,6 +67,7 @@ function sortObject(in_data) {
 }
 
 function hash(obj, secret) {
+    console.log('function hash(obj, secret)', obj);
     let str = "";
     for (const [key, value] of Object.entries(obj)) {
         str = str + escape_chars(key) + '=' + escape_chars(value) + ';' + secret + ';';

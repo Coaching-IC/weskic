@@ -20,6 +20,7 @@ fsE.ensureDirSync('data/user-files');
 
 function loadEncryptedData() {
     const scipers = fs.readdirSync('data/user-data').filter(val => val.endsWith('.aes')).map(s => s.slice(5, 11));
+    console.log(scipers);
     BPromise.each(scipers, sciper => restoreEncryptedUD(sciper)).then(() => {
         logger.debug(`Loaded ${Object.keys(userDataCache).length} user data objects.`);
     });
@@ -41,8 +42,9 @@ function storeEncryptedUD(sciper) {
 
 function restoreEncryptedUD(sciper) {
     return new BPromise((resolve, reject) => {
-        fs.readFile(`data/user-data/user-${sciper}.aes`, (err, all_data) => {
+        fs.readFile(`data/user-data/user-${sciper}.aes`,(err, all_data) => {
             if (err) reject(err);
+            console.log('DECRYPTING '+sciper);
             const iv = all_data.slice(0, 16);
             const authTag = all_data.slice(16, 32);
             const encrypted = all_data.slice(32);
@@ -143,6 +145,8 @@ function createUserData(tequilaAttributes) {
 /* ---------- EXPORTED ---------- */
 
 function init(encryptionKey, udLogger) {
+    encryptionKey = 'UX@=e4rHfe6C)=(dG;B;VqUj#a66,Zk\n';
+    console.log('ENC KEY LENGTH', encryptionKey.length);
     if (encryptionKey === undefined) {
         throw 'NO_ENCRYPTION_KEY';
     } else if (encryptionKey.length !== 32) {
