@@ -243,7 +243,7 @@ function setStep2HasPaid(sciper, hasPaid) {
     const date = new Date();
     userDataCache[sciper].step2.hasPaid = hasPaid;
     userDataCache[sciper].step2.hasPaidDate = date.toISOString();
-    dataToSave = true;
+    saveUserData(sciper);
 }
 
 function cancelStep(sciper, step) {
