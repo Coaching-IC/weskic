@@ -15,7 +15,7 @@
                     :to="{name: 'login'}">{{ registrationBtnText }}
           </b-button>
           <br>
-          <h3 class="subtitle">N'hésite pas à <strong>nous contacter sur Telegram</strong> si les questions ci-dessous ne suffisent pas ;)</h3>
+          <h3 class="subtitle"><strong>SOLD OUT - Il n'y a plus de place disponible</strong><br><br>N'hésite pas à <strong>nous contacter sur Telegram</strong> si les questions ci-dessous ne suffisent pas ;)</h3>
         </div>
       </div>
       <div class="column">
@@ -29,10 +29,10 @@
         <div id="dates" class="notification is-warning">
           <h3 class="subtitle">Dates d'inscription</h3>
           <ul>
-            <li><strong>1er</strong> décembre midi - <strong>IN/SC BA1 <br> INSCRIPTIONS TERMINÉES pour ce jour</strong></li>
+            <li><strong>1er</strong> décembre midi - <strong>IN/SC BA1 <br> Inscriptions terminées</strong></li>
             <br>
             <li><strong>4</strong> décembre midi - <strong>IN/SC BA1/3</strong><br>
-            Notez qu'il reste très peu de places</li>
+            <strong>Inscriptions terminées</strong></li>
           </ul>
           <br>
           <strong>Conditions de participation</strong> : tu dois <strong>être majeur</strong> et avoir un <strong>certificat
@@ -53,7 +53,7 @@ import QaA from "@/components/QaA";
 
 const now = new Date();
 const openDate = new Date('2021-12-04T11:00:00Z');
-const closeDate = new Date('2022-01-01T11:00:00Z');
+const closeDate = new Date('2023-01-01T11:00:00Z');
 
 export default {
   name: 'InfoView',
@@ -68,7 +68,7 @@ export default {
     },
     registrationBtnText: () => {
       if (now - openDate < 0) return 'Inscriptions (12h00)';
-      if (now - openDate >= 0 && now - closeDate <= 0) return 'Inscriptions';
+      if (now - openDate >= 0 && now - closeDate <= 0) return 'Afficher mon compte';
       if (now - closeDate > 0) return 'Inscriptions fermées';
       throw 'impossible';
     }

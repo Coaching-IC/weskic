@@ -4,10 +4,9 @@
 
     <div id="leftBox" class="">
       <h1 class="title">Réservation WESKIC</h1>
-      <h2 class="subtitle">Quasiment toutes les places sont prises</h2>
+      <h2 class="subtitle">Weekend Ski Coaching IC</h2>
       <hr>
-      <p class="text">En dehors des périodes d'inscriptions, seules les personnes qui ont
-        commencé leur inscription peuvent se connecter.</p>
+      <p class="text">Les inscriptions sont terminées. Ceux qui ont un compte peuvent terminer leur inscription.</p>
       <br>
       <div class="is-flex actionbar">
         <b-button type="is-outlined" expanded tag="router-link" :to="{name: 'info'}">Informations</b-button>
