@@ -52,7 +52,7 @@
 import QaA from "@/components/QaA";
 
 const now = new Date();
-const openDate = new Date('2021-12-01T11:00:00Z');
+const openDate = new Date('2021-12-04T11:00:00Z');
 const closeDate = new Date('2022-01-01T11:00:00Z');
 
 export default {
@@ -67,7 +67,7 @@ export default {
       throw 'impossible';
     },
     registrationBtnText: () => {
-      if (now - openDate < 0) return 'Inscriptions (trop tôt!)';
+      if (now - openDate < 0) return 'Inscriptions (12h00)';
       if (now - openDate >= 0 && now - closeDate <= 0) return 'Inscriptions';
       if (now - closeDate > 0) return 'Inscriptions fermées';
       throw 'impossible';

@@ -7,7 +7,8 @@
     </div>
     <div v-else class="">
       <h1 class="title">Il y a eu un problème ...</h1>
-      <p>S'il ne s'agit pas d'une simple annulation, ou d'un problème de votre côté : <a href="/help">contactez-nous</a> !</p>
+      <p>S'il ne s'agit pas d'une simple annulation, ou d'un problème de votre côté : <a href="/help" target="_blank">contactez-nous</a> !</p>
+      <p><a href="/registration">Retour à la page d'inscription</a> (une fois que vous nous avez contacté)</p>
     </div>
   </div>
 </template>

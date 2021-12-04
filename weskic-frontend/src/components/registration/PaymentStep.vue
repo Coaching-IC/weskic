@@ -13,10 +13,11 @@
             Si tu as un problème, utilise le <a href="/help" target="_blank">formulaire</a></h2>
         </div>
         <div class="column is-flex is-justify-content-space-around" v-if="ud.step2.paymentStrategy">
-          <b-tag class="is-large" type="is-info">
-            {{ ud.step2.paymentStrategy === 'polybanking' ? 'Paiement en ligne' : 'Paiement boutique ' }}
+          <b-tag class="is-large" type="">
+            {{ ud.step2.paymentStrategy === 'polybanking' ? 'Type de paiement : en ligne' : 'Type de paiement : boutique ' }}
           </b-tag>
-          <b-button class="is-white" @click="setPaymentStrategy('')" v-if="!ud.step2.polybanking_ref">Changer</b-button>
+          <p v-if="ud.step2.polybanking_ref">Contactez-nous pour changer de moyen de paiement</p>
+          <b-button class="is-warning" @click="setPaymentStrategy('')" v-else>Changer</b-button>
         </div>
       </div>
     </div>
@@ -55,8 +56,7 @@
     </div>
 
     <div v-if="ud.step2.paymentStrategy === 'polybanking' && ud.step2.polybanking_ref && !ud.step2.hasPaid">
-      <h1 class="subtitle">En attente de la confirmation du paiement, si après avoir refresh la page quelques minutes après votre paiement vous voyez toujours
-        ce message vous pouvez <a href="/help" target="_blank">nous contacter</a>.</h1>
+      <h1 class="subtitle">En attente de la confirmation du paiement, si votre paiement a échoué merci de <a href="/help" target="_blank">nous contacter</a> pour que vous puissiez en refaire un. Cette page ne devrait plus apparaître quelques secondes après un paiement réussi.</h1>
     </div>
 
     <div id="has-paid" v-if="ud.step2.hasPaid" class="columns">

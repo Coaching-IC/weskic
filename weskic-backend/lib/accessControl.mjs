@@ -82,9 +82,11 @@ const checkUnit = function (req, res, next) {
         }
     }
     if (errDate) {
+        logger.info(`User ${req.jwtData.sciper} tried to login too soon`);
         return res.send({error: 'ERR_DATE', date: firstDate});
     }
     if (errList) {
+        logger.info(`User ${req.jwtData.sciper} is not on the list`);
         return res.send({error: 'ERR_LIST', date: wildcardDate});
     }
     throw 'This should not happend';
