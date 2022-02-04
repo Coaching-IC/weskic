@@ -35,6 +35,7 @@ fetch(origin + '/api/mgt/' + mgtKey + '/allUserData').then(response => {
         let notPaidAgepoly = [];
         let notPaidPolybanking = [];
         let notPaidNothing = [];
+        let inBa3 = [];
 
         let hasPaid = [];
 
@@ -42,6 +43,7 @@ fetch(origin + '/api/mgt/' + mgtKey + '/allUserData').then(response => {
             const ud = allUserData[sciper];
             if (ADMINS.includes(sciper)) continue;
             const notifiedGood = NotifiedGood(sciper);
+            if (ud.info.units.includes('in-ba3') || ud.info.units.includes('sc-ba3')) inBa3.push(sciper);
             if (notifiedGood && !ud.step2.hasPaid) {
                 console.error(`\n\n\n------- ERROR ------- >>> ${ud.info.tequilaName} has been notified good and "hasn't paid" ${sciper}\n\n\n`);
             } else if (notifiedGood) {
@@ -65,6 +67,9 @@ fetch(origin + '/api/mgt/' + mgtKey + '/allUserData').then(response => {
         console.log(notPaidPolybanking.length + ' - Not paid POLYBANKING : ', output(notPaidPolybanking));
         console.log('\n---\n');
         console.log(notPaidNothing.length + ' - Not paid and not selected payment strategy : ', output(notPaidNothing));
+        console.log('\n---\n');
+        console.log(inBa3.length + ' - IN BA3 : ', output(inBa3));
+        console.log('\n---\n');
     });
 }).catch(err => {
     console.error(err);

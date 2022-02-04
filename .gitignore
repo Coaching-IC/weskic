@@ -2,5 +2,6 @@
 **/.env
 **/.idea
 
-weskic-backend/data/**
+weskic-backend/data**
+weskic-backend/tools/**
 weskic-backend/static/**

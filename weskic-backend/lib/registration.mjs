@@ -25,7 +25,7 @@ const upload = multer({
 
 let registrationRouter = express.Router();
 let telegramUsernamesCache = []
-let polybanking = new Polybanking();
+// let polybanking = new Polybanking();
 
 registrationRouter.post('/userData', (req, res) => {
     const ud = userData.getUserDataFromCache(req.jwtData.sciper);
@@ -120,8 +120,8 @@ function step2UpdateParser(step2, userData) {
     }
 
     // Payment strategy
-    if (!userData.step2.polybanking_ref && step2.paymentStrategy !== undefined && Validator.isIn(step2.paymentStrategy, ['', 'agepoly', 'polybanking']))
-        step2copy.paymentStrategy = step2.paymentStrategy;
+    // if (!userData.step2.polybanking_ref && step2.paymentStrategy !== undefined && Validator.isIn(step2.paymentStrategy, ['', 'agepoly', 'polybanking']))
+    //     step2copy.paymentStrategy = step2.paymentStrategy;
 
     return {step2: step2copy, step2Illegal: false};
 }
@@ -161,13 +161,13 @@ registrationRouter.post('/updateUserData', body('userData').isObject(), body('la
 
 
             // STEP 2 - if not paid
-        } else if (!previousUserData.step2.hasPaid && providedUserData.step2) {
+        }/* else if (!previousUserData.step2.hasPaid && providedUserData.step2) {
             let {step2, step2Illegal} = step2UpdateParser(providedUserData.step2, previousUserData);
             safeUserData.step2 = step2;
 
         } else if (previousUserData.step2.hasPaid && providedUserData.step2) {
             return stepLocked();
-        }
+        }*/
 
         userData.mutateUserData(req.jwtData.sciper, safeUserData, req.body.lazy).then(newUserData => {
             userData.setStep1Reviewed(req.jwtData.sciper, false);
@@ -255,18 +255,18 @@ registrationRouter.get('/my-discharge.pdf', (req, res) => {
     res.sendFile(fileName, {root: userFilesPath});
 });
 
-registrationRouter.post('/polybankingRequest', (req, res) => {
-    const ud = userData.getUserDataFromCache(req.jwtData.sciper);
-    if (!ud.step2.available || ud.step2.hasPaid || ud.step2.paymentStrategy!=='polybanking') {
-        logger.error(`[POLYBANKING] User ${req.jwtData.sciper} tried to make a new request`);
-        return res.sendStatus(400);
-    }
-
-    const ref = `weskic-${req.jwtData.sciper}-${Date.now()}`;
-    polybanking.new_transaction(ref, ud.step2.amountToPay).then(url => {
-        userData.setPolybankingRef(req.jwtData.sciper, ref, url);
-        res.send({success: true, url});
-    });
-});
+// registrationRouter.post('/polybankingRequest', (req, res) => {
+//     const ud = userData.getUserDataFromCache(req.jwtData.sciper);
+//     if (!ud.step2.available || ud.step2.hasPaid || ud.step2.paymentStrategy!=='polybanking') {
+//         logger.error(`[POLYBANKING] User ${req.jwtData.sciper} tried to make a new request`);
+//         return res.sendStatus(400);
+//     }
+//
+//     const ref = `weskic-${req.jwtData.sciper}-${Date.now()}`;
+//     polybanking.new_transaction(ref, ud.step2.amountToPay).then(url => {
+//         userData.setPolybankingRef(req.jwtData.sciper, ref, url);
+//         res.send({success: true, url});
+//     });
+// });
 
 export default {registrationRouter};
