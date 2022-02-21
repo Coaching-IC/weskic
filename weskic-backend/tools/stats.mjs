@@ -18,6 +18,8 @@ fetch(origin + '/api/mgt/' + mgtKey + '/allUserData').then(response => {
         let guests = 0;
         let ba1 = 0;
         let ba3 = 0;
+        let male = 0;
+        let female = 0;
 
         let hasPaid = 0;
         let hasPaidAgepoly = 0;
@@ -51,6 +53,8 @@ fetch(origin + '/api/mgt/' + mgtKey + '/allUserData').then(response => {
             else normal++;
             if (ud.info.units.includes('in-ba1') || ud.info.units.includes('sc-ba1')) ba1++;
             if (ud.info.units.includes('in-ba3') || ud.info.units.includes('sc-ba3')) ba3++;
+            if (ud.step1.identity_sex === 'male') male++;
+            if (ud.step1.identity_sex === 'female') female++;
 
             if (ud.step2.hasPaid) hasPaid++;
             if (ud.step2.paymentStrategy === 'agepoly' && ud.step2.hasPaid) hasPaidAgepoly++;
@@ -80,6 +84,7 @@ fetch(origin + '/api/mgt/' + mgtKey + '/allUserData').then(response => {
 
         console.log(`Registrations: ${any} ANY - ${normal} NORMAL - ${MAX_NORMAL_REGISTRATIONS-normal} SLOTS REMAINING - ${guests}/${GUESTS.length} GUESTS - ${normal+guests} N+G `);
         console.log(`IC-BA1: ${ba1} - IC-BA3: ${ba3}`);
+        console.log(`Male: ${male} - Female: ${female}`);
         console.log();
         console.log(`- Payments -`);
         console.log(`Total: ${hasPaid} have paid, ${normal+guests - hasPaid} remaining (normal+guests)`);

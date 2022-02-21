@@ -269,4 +269,8 @@ registrationRouter.get('/my-discharge.pdf', (req, res) => {
 //     });
 // });
 
+
+
+registrationRouter.post('/')
+
 export default {registrationRouter};

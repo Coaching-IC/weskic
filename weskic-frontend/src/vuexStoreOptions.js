@@ -96,8 +96,12 @@ export default {
                 polybanking_ipn: {},
             },
             step3: {},
-            step4: {},
+            step4: {
+                roomNumber: 0,  // 0 unknown, -1 not selected
+                roomLetter: '',
+            },
         },
+        rooms: []
     },
 
     mutations: {
@@ -124,7 +128,15 @@ export default {
         setTelegramUsernameStatus(state, {username, hasJoined}) {
             state.userData.step1.telegram.username = username;
             state.userData.step1.telegram.hasJoined = hasJoined;
+        },
+        setRooms(state, rooms) {
+            state.rooms = rooms;
+        },
+        setCurrentRoom(state, {roomNumber, roomLetter}) {
+            state.userData.step4.roomNumber = roomNumber;
+            state.userData.step4.roomLetter = roomLetter;
         }
+
     },
 
     actions: {
@@ -142,6 +154,8 @@ export default {
                 });
             });
         },
+
+        /* REGISTRATION */
 
         checkTelegramUsername({commit, state}, {telegramUsername}) {
             return post(state, '/api/reg/checkTelegramUsername', {telegramUsername}).then(response => {
@@ -206,6 +220,8 @@ export default {
             return post(state, '/api/help-form', {type,subject,message});
         },
 
+        /* AGEPOLY PAYMENTS */
+
         checkAgepKey({state,commit}, {agepKey}) {
             return new Promise((resolve,reject) => {
                 post(state, '/api/agep/checkConnection', {agepKey}).then(response=> {
@@ -228,8 +244,23 @@ export default {
             return post(state, '/api/agep/updateUser', {sciper, hasPaid, agepKey: state.agepKey});
         },
 
+        /* POLYBANKING */
+
         polybankingRequest({state}) {
             return post(state, '/api/reg/polybankingRequest', {});
+        },
+
+        /* ROOM RESERVATION */
+
+        getRooms({state, commit}) {
+            return post(state, '/api/reg/getRooms', {}).then(response => {
+                if (response.success) {
+                    commit('setRooms', response.rooms);
+                } else {
+                    console.error('Failed to pull rooms', response);
+                }
+            })
         }
+
     }
 };

@@ -60,8 +60,7 @@
 <!--    </div>-->
 
     <div id="has-paid" v-if="ud.step2.hasPaid" class="columns">
-      <h1 class="subtitle"><strong>PAIEMENT VALIDÉ</strong> C'est terminé ! Vous pouvez vous relaxer, la prochaine étape c'est pas pour tout de suite
-        ;)</h1>
+      <h1 class="subtitle"><strong>PAIEMENT VALIDÉ</strong> C'est terminé ! Prochaine étape : <a @click="goToStep3">location du matériel</a> puis le placement dans les chambres !</h1>
     </div>
 
     <div id="has-not-paid" v-else class="columns">
@@ -134,7 +133,10 @@ export default {
         });
         console.error(err);
       }).finally(() => this.isLoading = false);
-    }
+    },
+    goToStep3() {
+      this.$emit('next');
+    },
   }
 }
 </script>
