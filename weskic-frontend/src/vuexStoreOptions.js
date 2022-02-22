@@ -101,7 +101,10 @@ export default {
                 roomLetter: '',
             },
         },
-        rooms: []
+        rooms: {
+            chalets: [],
+            openingDate: ''
+        }
     },
 
     mutations: {
@@ -253,13 +256,29 @@ export default {
         /* ROOM RESERVATION */
 
         getRooms({state, commit}) {
-            return post(state, '/api/reg/getRooms', {}).then(response => {
-                if (response.success) {
-                    commit('setRooms', response.rooms);
-                } else {
-                    console.error('Failed to pull rooms', response);
-                }
-            })
+            return new Promise((resolve, reject) => {
+                post(state, '/api/reg/getRooms', {}).then(response => {
+                    if (response.success) {
+                        commit('setRooms', response.rooms);
+                        resolve(response);
+                    } else {
+                        console.error('Failed to pull rooms', response);
+                        reject(response);
+                    }
+                })
+            });
+        },
+
+        reserveRoom({state, commit}, {scipers, mixedRoom, number, letter}) {
+            return new Promise((resolve, reject) => {
+               post(state, '/api/reg/reserveRoom', {scipers, mixedRoom, number, letter}).then(response => {
+                   if (response.success) {
+                       commit('setRooms', response.rooms);
+                       commit('setCurrentRoom', {roomNumber: response.reservedRoomNumber, roomLetter: response.reservedRoomLetter});
+                       resolve(response);
+                   } else reject(response);
+               }).catch(reject);
+            });
         }
 
     }

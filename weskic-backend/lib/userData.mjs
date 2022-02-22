@@ -121,7 +121,10 @@ function createUserData(tequilaAttributes) {
                 polybanking_ipn: {},
             },
             step3: {},
-            step4: {},
+            step4: {
+                roomNumber: 0,  // 0 unknown, -1 not selected
+                roomLetter: '',
+            },
         };
         saveUserDataToDisk(sciper).then(() => {
             logger.info(`New registration for ${sciper} - ${tequilaAttributes.displayname}`);
@@ -314,12 +317,31 @@ function soldOut() {
     return isSoldOut;
 }
 
+function setRoomReservation(sciper, number, letter) {
+    userDataCache[sciper].step4.roomNumber = number;
+    userDataCache[sciper].step4.roomLetter = letter;
+    return saveUserData(sciper);
+}
+
+function checkScipers(scipers) {
+    const list =  Object.keys(userDataCache);
+    for (let sciper of scipers) {
+        if (!list.includes(sciper)) return false;
+    }
+    return true;
+}
+
+function getUserGender(sciper) {
+    if (userDataCache[sciper].step1.identity_sex === 'male') return 'm';
+    return 'f';
+}
+
 export default {
     loadData, beforeExit, checkTequilaAttributes, mutateUserData, updateTelegramStatus,
     getUserDataFromCache, storeEncryptedUserFile: storeUserFile, loadUserFile, dischargeSigned,
     setStep1Validated, setStep1Reviewed, setStep2HasPaid, cancelStep,
     setPolybankingRef, resetPolybanking, setPolybankingIPN, deleteUserData, allUserData,
-    setUserData, soldOut,
+    setUserData, soldOut, setRoomReservation, checkScipers, getUserGender
 };
 
 /* ---------- HELPERS ---------- */

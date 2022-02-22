@@ -1,0 +1,326 @@
+{
+  "chalets": [
+    {
+      "id": 1,
+      "rooms": [
+        {
+          "number": 1,
+          "letter": "",
+          "capacity": 4,
+          "available": true,
+          "gender": "",
+          "members": []
+        },
+        {
+          "number": 2,
+          "letter": "",
+          "capacity": 4,
+          "available": true,
+          "gender": "",
+          "members": []
+        },
+        {
+          "number": 3,
+          "letter": "",
+          "capacity": 4,
+          "available": true,
+          "gender": "",
+          "members": []
+        },
+        {
+          "number": 4,
+          "letter": "",
+          "capacity": 4,
+          "available": true,
+          "gender": "",
+          "members": []
+        },
+        {
+          "number": 5,
+          "letter": "",
+          "capacity": 4,
+          "available": true,
+          "gender": "",
+          "members": []
+        },
+        {
+          "number": 6,
+          "letter": "",
+          "capacity": 4,
+          "available": true,
+          "gender": "",
+          "members": []
+        },
+        {
+          "number": 7,
+          "letter": "",
+          "capacity": 4,
+          "available": true,
+          "gender": "",
+          "members": []
+        },
+        {
+          "number": 8,
+          "letter": "",
+          "capacity": 4,
+          "available": true,
+          "gender": "",
+          "members": []
+        },
+        {
+          "number": 9,
+          "letter": "",
+          "capacity": 4,
+          "available": true,
+          "gender": "",
+          "members": []
+        },
+        {
+          "number": 10,
+          "letter": "",
+          "capacity": 4,
+          "available": true,
+          "gender": "",
+          "members": []
+        },
+        {
+          "number": 11,
+          "letter": "a",
+          "capacity": 2,
+          "available": true,
+          "gender": "",
+          "members": []
+        },
+        {
+          "number": 11,
+          "letter": "b",
+          "capacity": 2,
+          "available": true,
+          "gender": "",
+          "members": []
+        },
+        {
+          "number": 11,
+          "letter": "c",
+          "capacity": 1,
+          "available": true,
+          "gender": "",
+          "members": []
+        },
+        {
+          "number": 13,
+          "letter": "",
+          "capacity": 5,
+          "available": true,
+          "gender": "",
+          "members": []
+        },
+        {
+          "number": 14,
+          "letter": "",
+          "capacity": 5,
+          "available": true,
+          "gender": "",
+          "members": []
+        }
+      ]
+    },
+
+    {
+      "id": 2,
+      "rooms": [
+        {
+          "number": 15,
+          "letter": "",
+          "capacity": 4,
+          "available": true,
+          "gender": "",
+          "members": []
+        },
+        {
+          "number": 16,
+          "letter": "",
+          "capacity": 4,
+          "available": true,
+          "gender": "",
+          "members": []
+        },
+        {
+          "number": 17,
+          "letter": "",
+          "capacity": 4,
+          "available": true,
+          "gender": "",
+          "members": []
+        },
+        {
+          "number": 18,
+          "letter": "",
+          "capacity": 4,
+          "available": true,
+          "gender": "",
+          "members": []
+        },
+        {
+          "number": 19,
+          "letter": "",
+          "capacity": 4,
+          "available": true,
+          "gender": "",
+          "members": []
+        },
+        {
+          "number": 20,
+          "letter": "",
+          "capacity": 4,
+          "available": true,
+          "gender": "",
+          "members": []
+        },
+        {
+          "number": 21,
+          "letter": "",
+          "capacity": 4,
+          "available": true,
+          "gender": "",
+          "members": []
+        },
+        {
+          "number": 22,
+          "letter": "",
+          "capacity": 4,
+          "available": true,
+          "gender": "",
+          "members": []
+        },
+        {
+          "number": 23,
+          "letter": "",
+          "capacity": 4,
+          "available": true,
+          "gender": "",
+          "members": []
+        },
+        {
+          "number": 24,
+          "letter": "",
+          "capacity": 4,
+          "available": true,
+          "gender": "",
+          "members": []
+        },
+        {
+          "number": 26,
+          "letter": "a",
+          "capacity": 2,
+          "available": true,
+          "gender": "",
+          "members": []
+        },
+        {
+          "number": 26,
+          "letter": "b",
+          "capacity": 2,
+          "available": true,
+          "gender": "",
+          "members": []
+        },
+        {
+          "number": 26,
+          "letter": "c",
+          "capacity": 1,
+          "available": true,
+          "gender": "",
+          "members": []
+        },
+        {
+          "number": 27,
+          "letter": "",
+          "capacity": 5,
+          "available": true,
+          "gender": "",
+          "members": []
+        },
+        {
+          "number": 28,
+          "letter": "",
+          "capacity": 5,
+          "available": true,
+          "gender": "",
+          "members": []
+        },
+        {
+          "number": 29,
+          "letter": "",
+          "capacity": 4,
+          "available": true,
+          "gender": "",
+          "members": []
+        },
+        {
+          "number": 30,
+          "letter": "",
+          "capacity": 4,
+          "available": true,
+          "gender": "",
+          "members": []
+        }
+      ]
+    },
+
+    {
+      "id": 3,
+      "rooms": [
+        {
+          "number": 42,
+          "letter": "a",
+          "capacity": 2,
+          "available": true,
+          "gender": "",
+          "members": []
+        },
+        {
+          "number": 42,
+          "letter": "b",
+          "capacity": 4,
+          "available": true,
+          "gender": "",
+          "members": []
+        },
+        {
+          "number": 44,
+          "letter": "a",
+          "capacity": 2,
+          "available": true,
+          "gender": "",
+          "members": []
+        },
+        {
+          "number": 44,
+          "letter": "b",
+          "capacity": 4,
+          "available": true,
+          "gender": "",
+          "members": []
+        },
+        {
+          "number": 46,
+          "letter": "a",
+          "capacity": 2,
+          "available": true,
+          "gender": "",
+          "members": []
+        },
+        {
+          "number": 46,
+          "letter": "b",
+          "capacity": 4,
+          "available": true,
+          "gender": "",
+          "members": []
+        }
+      ]
+    }
+  ],
+  "openingDate": "2022-02-22T11:00:00.000Z"
+}

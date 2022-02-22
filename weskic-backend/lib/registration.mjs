@@ -9,10 +9,12 @@ import QRCode from 'qrcode';
 import {resolve, join} from 'path';
 
 import userData from "./userData.mjs";
+import rooms from "./rooms.mjs";
 import {getLogger} from "./logger.mjs";
 import telegramBot from './telegramBot.mjs';
 import dischargeGenerator from "./dischargeGenerator.mjs";
 import Polybanking from './polybanking.mjs';
+import BPromise from "bluebird";
 
 const PROD = process.env.NODE_ENV.toLowerCase() === 'production';
 const logger = getLogger(PROD);
@@ -141,7 +143,7 @@ registrationRouter.post('/updateUserData', body('userData').isObject(), body('la
         let missingFields = [];
 
         // Sanitation & Validation
-        const stepLocked = function() {
+        const stepLocked = function () {
             logger.error(`[REG] User ${req.jwtData.tequilaName} #${req.jwtData.sciper} tried to modify locked step`);
             res.send({success: false, error: 'step locked'});
         }
@@ -161,13 +163,15 @@ registrationRouter.post('/updateUserData', body('userData').isObject(), body('la
 
 
             // STEP 2 - if not paid
-        }/* else if (!previousUserData.step2.hasPaid && providedUserData.step2) {
-            let {step2, step2Illegal} = step2UpdateParser(providedUserData.step2, previousUserData);
-            safeUserData.step2 = step2;
+            /*} else if (!previousUserData.step2.hasPaid && providedUserData.step2) {
+                let {step2, step2Illegal} = step2UpdateParser(providedUserData.step2, previousUserData);
+                safeUserData.step2 = step2;
 
-        } else if (previousUserData.step2.hasPaid && providedUserData.step2) {
-            return stepLocked();
-        }*/
+            } else if (previousUserData.step2.hasPaid && providedUserData.step2) {
+                return stepLocked();
+            }*/
+
+        }
 
         userData.mutateUserData(req.jwtData.sciper, safeUserData, req.body.lazy).then(newUserData => {
             userData.setStep1Reviewed(req.jwtData.sciper, false);
@@ -251,7 +255,7 @@ registrationRouter.post('/generate-discharge', body('lastname'), body('firstname
 
 registrationRouter.get('/my-discharge.pdf', (req, res) => {
     const userFilesPath = resolve('data/user-files');
-    const fileName = 'discharge-'+req.jwtData.sciper+'.pdf';
+    const fileName = 'discharge-' + req.jwtData.sciper + '.pdf';
     res.sendFile(fileName, {root: userFilesPath});
 });
 
@@ -270,7 +274,141 @@ registrationRouter.get('/my-discharge.pdf', (req, res) => {
 // });
 
 
+registrationRouter.post('/getRooms', (req, res) => {
+    const ud = userData.getUserDataFromCache(req.jwtData.sciper);
+    const userGender = ud.step1.identity_sex;
+    res.send({success: true, rooms: rooms.getClientRooms(userGender)});
+});
 
-registrationRouter.post('/')
+registrationRouter.post('/reserveRoom', body('scipers').if(sciper => sciper.match(/^\d{6}(,\d{6})*$/g)),
+// What a hack, fails validation exactly 1/2 times if I use .matches(regex) instead of .if(sciper=>sciper.match(regex))
+    body('mixedRoom').isIn(['mixed', 'gendered', '']), body('number').isNumeric(), body('letter'),
+    (req, res) => {
+        const bodyErrors = validationResult(req);
+        if (!bodyErrors.isEmpty()) {
+            return res.status(400).json({
+                errors: ['Body error, contact administrator'],
+                bodyErrors: bodyErrors.array()
+            });
+        }
+
+        const ud = userData.getUserDataFromCache(req.jwtData.sciper);
+        const userGender = ud.step1.identity_sex;
+        const number = req.body.number;
+        const letter = req.body.letter;
+
+        if (number === -1) {
+            // Cancellation
+            rooms.cancelReservation(req.jwtData.sciper).then(() => {
+                userData.setRoomReservation(req.jwtData.sciper, -1, '').then(() => {
+                    logger.info(`[ROOMS] ${req.jwtData.tequilaName} - ${req.jwtData.sciper} - CANCELLED room reservation`);
+                    return res.send({success: true, rooms: rooms.getClientRooms(userGender)});
+                }).catch(err => {
+                    logger.error(`[ROOMS] ${req.jwtData.tequilaName} - ${req.jwtData.sciper} - FAILED to cancel room reservation : ${err}`);
+                    return res.send({success: false, error: err});
+                });
+            }).catch(err => {
+                logger.error(`[ROOMS] ${req.jwtData.tequilaName} - ${req.jwtData.sciper} - FAILED to cancel room reservation : ${err}`);
+                return res.send({success: false, error: err});
+            });
+            return;
+        }
+
+        if (ud.step4.roomNumber > 0) {
+            logger.info(`[ROOMS] ${req.jwtData.tequilaName} - ${req.jwtData.sciper} - FAILED to reserve room ${number}${letter} : already have a room`);
+            return res.send({success: false, error: 'already have a room'});
+        }
+
+        const roomCompatible = rooms.isRoomCompatible(number, letter, userGender);
+        if (!roomCompatible) {
+            logger.info(`[ROOMS] ${req.jwtData.tequilaName} - ${req.jwtData.sciper} - FAILED to reserve room ${number}${letter} : unavailable`);
+            return res.send({success: false, error: 'unavailable'});
+        }
+
+        const scipers = req.body.scipers.split(',');
+        const mixedGender = req.body.mixedRoom === 'mixed';
+        const roomPreviousGender = rooms.roomGender(number, letter);
+        if (scipers.length > 1) {
+            if (!scipers.includes(req.jwtData.sciper)) {
+                return res.sendStatus(403);
+            }
+
+            if (!userData.checkScipers(scipers)) {
+                logger.error(`[ROOMS] ${req.jwtData.tequilaName} - ${req.jwtData.sciper} - FAILED to reserve rooms ${number} : unknown scipers`);
+                return res.send({success: false, error: 'unknown scipers'});
+            }
+
+            if (roomPreviousGender !== '') {
+                for (let sciper of scipers) {
+                    if (userData.getUserGender(sciper) !== roomPreviousGender) {
+                        logger.error(`[ROOMS] ${req.jwtData.tequilaName} - ${req.jwtData.sciper} - FAILED to reserve rooms ${number} : gender mismatch`);
+                        return res.send({success: false, error: 'gender mismatch'})
+                    }
+                }
+            }
+
+            let numberOfPeople = scipers.length;
+            if (!rooms.checkCapacity(numberOfPeople, number, letter)) {
+                logger.error(`[ROOMS] ${req.jwtData.tequilaName} - ${req.jwtData.sciper} - FAILED to reserve rooms ${number} : not enough space`);
+                return res.send({success: false, error: 'not enough space'});
+            }
+            let promises = [];
+            let freeSpaceA, freeSpaceB, ifsA, ifsB;
+            if (letter !== '') {
+                freeSpaceA = rooms.getFreeSpace(number, 'a');
+                ifsA = freeSpaceA;
+                freeSpaceB = rooms.getFreeSpace(number, 'b');
+                ifsB = freeSpaceB;
+            }
+            for (let i = 0; i < numberOfPeople; i++) {
+                const sciper = scipers[i];
+                if (letter === '') {
+                    promises.push(rooms.updateUserRoomReservation(sciper, number, '', mixedGender ? '' : userGender));
+                } else if (i < ifsA) {
+                    promises.push(rooms.updateUserRoomReservation(sciper, number, 'a', mixedGender ? '' : userGender));
+                    freeSpaceA--;
+                    // console.log(i, 'a', freeSpaceA);
+                } else if (i < ifsA + ifsB) {
+                    promises.push(rooms.updateUserRoomReservation(sciper, number, 'b', mixedGender ? '' : userGender));
+                    freeSpaceB--;
+                    // console.log(i, 'b', freeSpaceB);
+                } else {
+                    promises.push(rooms.updateUserRoomReservation(sciper, number, 'c', mixedGender ? '' : userGender));
+                    // console.log(i, 'c');
+                }
+            }
+            BPromise.all(promises).then(() => {
+                logger.info(`[ROOMS] ${req.jwtData.tequilaName} - ${req.jwtData.sciper} - RESERVED ${scipers.length} beds in room ${number}`);
+                return res.send({
+                    success: true,
+                    rooms: rooms.getClientRooms(ud.identity_sex),
+                    reservedRoomNumber: req.body.number,
+                    reservedRoomLetter: req.body.letter
+                });
+            }).catch(err => {
+                logger.error(`[ROOMS] ${req.jwtData.tequilaName} - ${req.jwtData.sciper} - FAILED to reserve ${scipers.length} beds in room ${number} : update failed`);
+                return res.send({success: false, error: 'update failed', message: err});
+            });
+        } else {
+            if (rooms.getFreeSpace(number, letter) === 0) {
+                logger.error(`[ROOMS] ${req.jwtData.tequilaName} - ${req.jwtData.sciper} - FAILED to reserve room ${number}${letter} : room is full`);
+                return res.send({success: false, error: 'room is full', message: err});
+            }
+            rooms.updateUserRoomReservation(req.jwtData.sciper, number, letter, mixedGender ? '' : userGender).then(() => {
+                logger.info(`[ROOMS] ${req.jwtData.tequilaName} - ${req.jwtData.sciper} - RESERVED room ${number}${letter}`);
+                return res.send({
+                    success: true,
+                    rooms: rooms.getClientRooms(ud.identity_sex),
+                    reservedRoomNumber: req.body.number,
+                    reservedRoomLetter: req.body.letter
+                });
+            }).catch(err => {
+                logger.error(`[ROOMS] ${req.jwtData.tequilaName} - ${req.jwtData.sciper} - FAILED to reserve room ${number}${letter} : update failed`);
+                return res.send({success: false, error: 'update failed', message: err});
+            });
+        }
+
+
+    });
 
 export default {registrationRouter};
