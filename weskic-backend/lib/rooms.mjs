@@ -96,7 +96,8 @@ function roomRemoveMember(sciper, number, letter) {
     if (members.length === 0) {
         logger.info(`[ROOMS] No members remaining in room ${number}${letter}, gender reset`);
         roomSetGender('', number, letter);
-    } else if (members.length !== room.capacity) {
+    }
+    if (members.length !== room.capacity) {
         room.available = true;
     }
     writeRooms();

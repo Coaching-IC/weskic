@@ -111,7 +111,7 @@
                 @click="closeModal"/>
             <b-button
                 label="Réserver"
-                :disabled="false && !modalRoomReservationButtonEnabled"
+                :disabled="!modalRoomReservationButtonEnabled"
                 @click="reserve"
                 type="is-primary"/>
             <span v-if="!openingDateCheck"><em>Réservations à partir de Mardi 12h</em></span>
