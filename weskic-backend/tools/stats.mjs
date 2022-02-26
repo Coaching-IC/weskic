@@ -43,7 +43,12 @@ fetch(origin + '/api/mgt/' + mgtKey + '/allUserData').then(response => {
         let excellent = 0;
         let excellentWithCourse = 0;
 
+        let vegetarian = 0;
+        let glutenFree = 0;
+        let porkFree = 0;
         let noCheese = 0;
+        let noAlcohol = 0;
+        let foodAllergies = [];
 
         for (const sciper in allUserData) {
             any++;
@@ -78,7 +83,12 @@ fetch(origin + '/api/mgt/' + mgtKey + '/allUserData').then(response => {
             if (ud.step1.activities_skiLevel === 'excellent') excellent++;
             if (ud.step1.activities_skiLevel === 'excellent' && ud.step1.activities_options.includes('course')) excellentWithCourse++;
 
+            if (ud.step1.constraints_diets.includes('vegetarian')) vegetarian++;
+            if (ud.step1.constraints_diets.includes('gluten-free')) glutenFree++;
+            if (ud.step1.constraints_diets.includes('pork-free')) porkFree++;
             if (ud.step1.constraints_diets.includes('no-cheese')) noCheese++;
+            if (ud.step1.constraints_diets.includes('no-alcohol')) noAlcohol++;
+            if (ud.step1.constraints_foodAllergy !== '') foodAllergies.push(ud.step1.constraints_foodAllergy);
         }
         console.log('\n\n\n');
 
@@ -98,9 +108,18 @@ fetch(origin + '/api/mgt/' + mgtKey + '/allUserData').then(response => {
         console.log(`Ski Level : ${firstTime} first-time, ${beginner} beginners and ${intermediate} intermediate ${excellent} excellent`);
         console.log(`Course : ${course} total , ${firstTimeWithCourse} first-time, ${beginnerWithCourse} beginners and ${intermediateWithCourse} intermediate ${excellentWithCourse} excellent`);
         console.log(`- Diets -`);
+        console.log(`Vegetarian: ${vegetarian}`);
+        console.log(`Gluten-free: ${glutenFree}`);
+        console.log(`Pork-free: ${porkFree}`);
         console.log(`No cheese: ${noCheese}`);
+        console.log(`No alcohol: ${noAlcohol}`);
+        console.log(`Food allergies :`);
+        let foodAllergiesStr = '';
+        for (let allergy of foodAllergies) {
+        	foodAllergiesStr += ' - ' + allergy + '\n';
+        }
+        console.log(foodAllergiesStr);
         console.log('\n\n\n');
-
     });
 }).catch(err => {
     console.error(err);

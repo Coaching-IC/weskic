@@ -128,7 +128,7 @@ function updateUserRoomReservation(sciper, number, letter, roomGender) {
 }
 
 function isRoomCompatible(number, letter, gender) {
-    console.log(number, letter, roomsDict);
+    //console.log(number, letter, roomsDict);
     const g1 = roomsDict[number.toString() + letter].gender;
     const g2 = gender === 'male' ? 'm' : 'f';
     return g1 === '' || g1 === g2;
@@ -182,4 +182,16 @@ function roomGender(number, letter) {
     return room.gender;
 }
 
-export default {getClientRooms, isRoomCompatible, updateUserRoomReservation, cancelReservation, roomSetGender, checkCapacity, getFreeSpace, roomGender};
+function adminActionGetRooms() {
+    return rooms;
+}
+
+function adminActionSetRooms(newRooms) {
+    rooms = newRooms;
+    writeRooms();
+    parseRooms();
+}
+
+export default {getClientRooms, isRoomCompatible, updateUserRoomReservation,
+    cancelReservation, roomSetGender, checkCapacity, getFreeSpace, roomGender,
+    adminActionGetRooms, adminActionSetRooms };

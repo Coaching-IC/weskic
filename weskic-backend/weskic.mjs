@@ -18,6 +18,7 @@ const AGEP_KEY = process.env.AGEP_KEY;
 import updater from './lib/staticUpdater.mjs';
 import {getLogger, getAccessLogger} from './lib/logger.mjs';
 import userData from './lib/userData.mjs';
+import rooms from './lib/rooms.mjs';
 import accessControl from './lib/accessControl.mjs';
 import registration from './lib/registration.mjs';
 import mailService from "./lib/mailService.mjs";
@@ -269,6 +270,23 @@ app.post('/api/mgt/:mgtKey/setUserData', checkManagementKey, (req, res) => {
         userData.setUserData(req.body.sciper, req.body.userData).then(() => {
             res.sendStatus(200);
         }).catch(res.status(500).send);
+    } else res.status(400).json(req.body);
+});
+
+app.get('/api/mgt/:mgtKey/getRooms', checkManagementKey, (req, res) => {
+   logger.info('[MGT] Get rooms');
+   res.send(rooms.adminActionGetRooms());
+});
+
+app.post('/api/mgt/:mgtKey/setRooms', checkManagementKey, (req,res) => {
+   logger.info(`[MGT] Set rooms`);
+    if (req.body.rooms) {
+        try {
+            rooms.adminActionSetRooms(req.body.rooms);
+            res.sendStatus(200);
+        } catch (e) {
+            res.status(500).json({success: false, error: e});
+        }
     } else res.status(400).json(req.body);
 });
 
