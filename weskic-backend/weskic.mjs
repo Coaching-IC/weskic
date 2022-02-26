@@ -290,6 +290,14 @@ app.post('/api/mgt/:mgtKey/setRooms', checkManagementKey, (req,res) => {
     } else res.status(400).json(req.body);
 });
 
+app.get('/api/mgt/:mgtKey/replaceAccount/:previousSciper/:newSciper', checkManagementKey, (req, res) => {
+   logger.info(`[MGT] Replacing account ${req.params.previousSciper} with ${req.params.newSciper}`);
+   if (!req.params.previousSciper || ! req.params.newSciper) return res.status(400).json(req.body);
+   userData.replaceAccount(req.params.previousSciper, req.params.newSciper).then(() => {
+       res.sendStatus(200);
+   }).catch(e => res.status(500).json(e));
+});
+
 /* ------------ EXPRESS ---------- */
 
 if (!fs.existsSync('data')) fs.mkdirSync('data');

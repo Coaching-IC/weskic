@@ -1,9 +1,11 @@
 import dotenv from "dotenv";
+
 dotenv.config();
 import fs from 'fs';
 import fsE from 'fs-extra';
 import BPromise from 'bluebird';
 import {getLogger} from "./logger.mjs";
+import fetch from "node-fetch";
 
 const PROD = process.env.NODE_ENV.toLowerCase() === 'production';
 const logger = getLogger(PROD);
@@ -27,7 +29,7 @@ function loadData() {
 
 function saveUserDataToDisk(sciper) {
     return new BPromise((resolve, reject) => {
-        fs.writeFile(`data/user-data/user-${sciper}.json`, JSON.stringify(userDataCache[sciper],null,' '), err => {
+        fs.writeFile(`data/user-data/user-${sciper}.json`, JSON.stringify(userDataCache[sciper], null, ' '), err => {
             if (err) reject(err);
             else resolve();
         });
@@ -51,7 +53,7 @@ function saveUserData(sciper) {
             const ud = userDataCache[sciper];
             if (ud === undefined) {
                 logger.error(`Save : Can't find user data for ${sciper}`);
-                reject();
+                reject(`Save : Can't find user data for ${sciper}`);
             } else {
                 saveUserDataToDisk(sciper).then(resolve).catch(reject);
             }
@@ -61,14 +63,14 @@ function saveUserData(sciper) {
     });
 }
 
-function createUserData(tequilaAttributes) {
+function createUserData(tequilaAttributes, ignoreUnits) {
     const sciper = tequilaAttributes.uniqueid;
     return new BPromise((resolve, reject) => {
         const now = new Date();
         userDataCache[sciper] = {
             info: {
                 sciper,
-                units: tequilaAttributes.allunits.split(','),
+                units: ignoreUnits ? '' : tequilaAttributes.allunits.split(','),
                 tequilaName: tequilaAttributes.displayname,
                 registrationDate: now.toISOString(),
                 isAdmin: ADMINS.includes(sciper)
@@ -313,7 +315,7 @@ function soldOut() {
         }
     }
     const isSoldOut = normalCounter >= MAX_NORMAL_REGISTRATIONS;
-    logger.info(`[REG] SOLD OUT CHECK : ${normalCounter} / ${MAX_NORMAL_REGISTRATIONS} MAX : ${isSoldOut ? 'SOLD OUT !!' : (MAX_NORMAL_REGISTRATIONS-normalCounter)+' remaining'}`);
+    logger.info(`[REG] SOLD OUT CHECK : ${normalCounter} / ${MAX_NORMAL_REGISTRATIONS} MAX : ${isSoldOut ? 'SOLD OUT !!' : (MAX_NORMAL_REGISTRATIONS - normalCounter) + ' remaining'}`);
     return isSoldOut;
 }
 
@@ -324,7 +326,7 @@ function setRoomReservation(sciper, number, letter) {
 }
 
 function checkScipers(scipers) {
-    const list =  Object.keys(userDataCache);
+    const list = Object.keys(userDataCache);
     for (let sciper of scipers) {
         if (!list.includes(sciper)) return false;
     }
@@ -336,12 +338,39 @@ function getUserGender(sciper) {
     return 'f';
 }
 
+function replaceAccount(previousSciper, newSciper) {
+    return new Promise((resolve, reject) => {
+        if (userDataCache[newSciper]) return reject({error: 'sciper already exists', previousSciper, newSciper});
+        saveUserData(previousSciper).then(() => {
+            try {
+                fsE.moveSync(`data/user-data/user-${previousSciper}.json`, `data/logs/deleted-user-${previousSciper}.json`, {overwrite: false});
+            } catch (e) {
+                return reject({error: 'failed to move previous user data to logs', previousSciper, newSciper});
+            }
+            delete userDataCache[previousSciper];
+            fetch("https://search-api.epfl.ch/api/ldap?q=" + newSciper + "&showall=0&hl=en&pageSize=all&siteSearch=people.epfl.ch",
+                {referrer: "https://search.epfl.ch/", method: "GET"}).then(response => {
+                response.text().then(text => {
+                    const firstPerson = JSON.parse(text)[0];
+                    const sciperFound = firstPerson.sciper;
+                    if (sciperFound !== newSciper) {
+                        return reject({error: 'Wrong person on people.epfl.ch', firstPerson});
+                    }
+                    const displayname = firstPerson.firstname + ' ' + firstPerson.name;
+                    const allunits = firstPerson.accreds.map(accred => accred.acronym).join(',');
+                    createUserData({uniqueid: newSciper, allunits, displayname}).then(resolve).catch(reject);
+                }).catch(reject);
+            }).catch(reject);
+        }).catch(reject);
+    });
+}
+
 export default {
     loadData, beforeExit, checkTequilaAttributes, mutateUserData, updateTelegramStatus,
     getUserDataFromCache, storeEncryptedUserFile: storeUserFile, loadUserFile, dischargeSigned,
     setStep1Validated, setStep1Reviewed, setStep2HasPaid, cancelStep,
     setPolybankingRef, resetPolybanking, setPolybankingIPN, deleteUserData, allUserData,
-    setUserData, soldOut, setRoomReservation, checkScipers, getUserGender
+    setUserData, soldOut, setRoomReservation, checkScipers, getUserGender, replaceAccount
 };
 
 /* ---------- HELPERS ---------- */
